@@ -204,7 +204,7 @@ function SimpleReference(value) {
   }
   this.value = value;
 }
-SimpleReference.re = /^[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)*$/i;
+SimpleReference.re = /^[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*|\[\*\])*$/i;
 SimpleReference.prototype = new Expression();
 SimpleReference.prototype.constructor = SimpleReference;
 SimpleReference.prototype.toAQL = function () {return String(this.value);};
