@@ -1,0 +1,30 @@
+{
+  "name": "aqb",
+  "license": "APACHE2_0",
+  "version": "0.0.1",
+  "description": "ArangoDB AQL query builder.",
+  "keywords": [
+    "arangodb",
+    "aql",
+    "nosql"
+  ],
+  "author": {
+    "name": "Alan Plum",
+    "email": "me@pluma.io",
+    "web": "https://www.arangodb.org"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engine": "node >= 0.8.0",
+  "bugs": {
+    "url": "https://github.com/arangodb/aqbjs/issues"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/arangodb/aqbjs.git"
+  },
+  "main": "index.js"
+}
