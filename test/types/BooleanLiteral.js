@@ -1,4 +1,4 @@
-/* jshint globalstrict: true, es3: true */
+/* jshint globalstrict: true, es3: true, loopfunc: true */
 /* globals require: false, describe: false, it: false */
 'use strict';
 var expect = require('expect.js'),
