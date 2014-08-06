@@ -14,13 +14,16 @@
     "web": "https://www.arangodb.org"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^1.21.3"
+  },
   "engine": "node >= 0.8.0",
   "bugs": {
     "url": "https://github.com/arangodb/aqbjs/issues"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --growl -R spec test/**/*.js"
   },
   "repository": {
     "type": "git",

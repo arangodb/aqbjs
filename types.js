@@ -62,6 +62,7 @@ Operation.prototype = new Expression();
 Operation.prototype.constructor = Operation;
 
 function RawExpression(value) {
+  if (value && value instanceof RawExpression) {value = value.value};
   this.value = value;
 }
 RawExpression.prototype = new Expression();
