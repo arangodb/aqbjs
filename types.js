@@ -29,12 +29,15 @@ function autoCastToken(token) {
     return new BooleanLiteral(token);
   }
   if (typeof token === 'string') {
+    if (token.match(/^[-+]?[0-9]+(\.[0-9]+)?$/)) {
+      return autoCastToken(Number(token));
+    }
     if (token.charAt(0) === '"') {
       return new StringLiteral(JSON.parse(token));
     }
     match = token.match(/^([0-9]+)\.\.([0-9]+)$/);
     if (match) {
-      return new RangeExpression(match[1], match[2]);
+      return new RangeExpression(Number(match[1]), Number(match[2]));
     }
     if (token.match(Identifier.re)) {
       return new Identifier(token);
@@ -195,8 +198,8 @@ ObjectLiteral.prototype.toString = function () {
 };
 
 function RangeExpression(start, end) {
-  this.start = new IntegerLiteral(start);
-  this.end = new IntegerLiteral(end);
+  this.start = autoCastToken(start);
+  this.end = autoCastToken(end);
 }
 RangeExpression.prototype = new Expression();
 RangeExpression.prototype.constructor = RangeExpression;
