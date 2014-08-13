@@ -62,7 +62,7 @@ Operation.prototype = new Expression();
 Operation.prototype.constructor = Operation;
 
 function RawExpression(value) {
-  if (value && value instanceof RawExpression) {value = value.value};
+  if (value && value instanceof RawExpression) {value = value.value;}
   this.value = value;
 }
 RawExpression.prototype = new Expression();
@@ -97,8 +97,8 @@ function NumberLiteral(value) {
     value instanceof IntegerLiteral
   )) {value = value.value;}
   this.value = Number(value);
-  if (this.value !== this.value) {
-    throw new AqlError('Expected value to be a number: ' + value);
+  if (this.value !== this.value || this.value === Infinity) {
+    throw new AqlError('Expected value to be a finite number: ' + value);
   }
 }
 NumberLiteral.prototype = new Expression();
@@ -107,10 +107,13 @@ NumberLiteral.prototype.toAQL = function () {return String(this.value);};
 NumberLiteral.prototype.toString = fromAqlWithType('num');
 
 function IntegerLiteral(value) {
-  if (value && value instanceof IntegerLiteral) {value = value.value;}
+  if (value && (
+    value instanceof NumberLiteral ||
+    value instanceof IntegerLiteral
+  )) {value = value.value;}
   this.value = Number(value);
-  if (this.value !== this.value || Math.floor(this.value) !== this.value) {
-    throw new AqlError('Expected value to be an integer: ' + value);
+  if (this.value !== this.value || this.value === Infinity || Math.floor(this.value) !== this.value) {
+    throw new AqlError('Expected value to be a finite integer: ' + value);
   }
 }
 IntegerLiteral.prototype = new Expression();
@@ -120,6 +123,7 @@ IntegerLiteral.prototype.toString = fromAqlWithType('int');
 
 function StringLiteral(value) {
   if (value && value instanceof StringLiteral) {value = value.value;}
+  if (value && typeof value.toAQL === 'function') {value = value.toAQL();}
   this.value = String(value);
 }
 StringLiteral.prototype = new Expression();
