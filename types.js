@@ -173,25 +173,25 @@ function ObjectLiteral(value) {
 ObjectLiteral.prototype = new Expression();
 ObjectLiteral.prototype.constructor = ObjectLiteral;
 ObjectLiteral.prototype.toAQL = function () {
-  var value = [], key;
+  var items = [], key;
   for (key in this.value) {
     if (this.value.hasOwnProperty(key)) {
-      value.push(JSON.stringify(key) + ': ' + wrapAQL(this.value[key]));
+      items.push(JSON.stringify(key) + ': ' + wrapAQL(this.value[key]));
     }
   }
-  return '{' + value.join(', ') + '}';
+  return '{' + items.join(', ') + '}';
 };
 ObjectLiteral.prototype.toString = function () {
-  var value = [], key;
+  var items = [], key;
   for (key in this.value) {
     if (this.value.hasOwnProperty(key)) {
       if (!Identifier.re.exec(key)) {
         key = JSON.stringify(key);
       }
-      value.push(key + ': ' + this.value[key].toString());
+      items.push(key + ': ' + this.value[key].toString());
     }
   }
-  return '{' + value.join(', ') + '}';
+  return '{' + items.join(', ') + '}';
 };
 
 function RangeExpression(start, end) {
