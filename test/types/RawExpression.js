@@ -29,7 +29,7 @@ describe('RawExpression', function () {
       ['an', 'array', '||', 2],
       function also() {return this;}
     ];
-    for (var i = 0; i < values; i++) {
+    for (var i = 0; i < values.length; i++) {
       expect(new RawExpression(values[i]).toAQL()).to.equal(String(values[i]));
     }
   });

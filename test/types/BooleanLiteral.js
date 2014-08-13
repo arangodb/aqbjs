@@ -24,7 +24,7 @@ describe('BooleanLiteral', function () {
       [],
       function () {}
     ];
-    for (var i = 0; i < values; i++) {
+    for (var i = 0; i < values.length; i++) {
       expect(new BooleanLiteral(values[i]).toAQL()).to.equal('true');
     }
   });
@@ -36,7 +36,7 @@ describe('BooleanLiteral', function () {
       false,
       undefined
     ];
-    for (var i = 0; i < values; i++) {
+    for (var i = 0; i < values.length; i++) {
       expect(new BooleanLiteral(values[i]).toAQL()).to.equal('false');
     }
   });
