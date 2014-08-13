@@ -679,6 +679,7 @@ exports.ListLiteral = ListLiteral;
 exports.ObjectLiteral = ObjectLiteral;
 exports.RangeExpression = RangeExpression;
 exports.PropertyAccess = PropertyAccess;
+exports.Keyword = Keyword;
 exports.Identifier = Identifier;
 exports.SimpleReference = SimpleReference;
 exports.UnaryOperation = UnaryOperation;
