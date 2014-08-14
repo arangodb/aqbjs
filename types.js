@@ -5,7 +5,11 @@ var AqlError = require('./errors').AqlError,
   keywords = require('./assumptions').keywords;
 
 function wrapAQL(expr) {
-  if (expr instanceof Statement) {
+  if (
+    expr instanceof Operation ||
+    expr instanceof Statement ||
+    expr instanceof PartialStatement
+  ) {
     return '(' + expr.toAQL() + ')';
   }
   return expr.toAQL();
@@ -16,7 +20,7 @@ function autoCastToken(token) {
   if (token === null || token === undefined) {
     return new NullLiteral();
   }
-  if (token instanceof Expression) {
+  if (token instanceof Expression || token instanceof PartialStatement) {
     return token;
   }
   if (typeof token === 'number') {
@@ -53,12 +57,6 @@ function autoCastToken(token) {
   throw new AqlError('Invalid type for an AQL value: ' + (typeof token));
 }
 
-function fromAqlWithType(type) {
-  return function () {
-    return '(' + type + ') ' + this.toAQL();
-  };
-}
-
 function Expression() {}
 function Operation() {}
 Operation.prototype = new Expression();
@@ -71,7 +69,6 @@ function RawExpression(value) {
 RawExpression.prototype = new Expression();
 RawExpression.prototype.constructor = RawExpression;
 RawExpression.prototype.toAQL = function () {return String(this.value);};
-RawExpression.prototype.toString = fromAqlWithType('raw');
 
 function NullLiteral(value) {
   if (value && value instanceof NullLiteral) {value = value.value;}
@@ -83,7 +80,6 @@ function NullLiteral(value) {
 NullLiteral.prototype = new Expression();
 NullLiteral.prototype.constructor = NullLiteral;
 NullLiteral.prototype.toAQL = function () {return 'null';};
-NullLiteral.prototype.toString = fromAqlWithType('nil');
 
 function BooleanLiteral(value) {
   if (value && value instanceof BooleanLiteral) {value = value.value;}
@@ -92,7 +88,6 @@ function BooleanLiteral(value) {
 BooleanLiteral.prototype = new Expression();
 BooleanLiteral.prototype.constructor = BooleanLiteral;
 BooleanLiteral.prototype.toAQL = function () {return String(this.value);};
-BooleanLiteral.prototype.toString = fromAqlWithType('bool');
 
 function NumberLiteral(value) {
   if (value && (
@@ -107,7 +102,6 @@ function NumberLiteral(value) {
 NumberLiteral.prototype = new Expression();
 NumberLiteral.prototype.constructor = NumberLiteral;
 NumberLiteral.prototype.toAQL = function () {return String(this.value);};
-NumberLiteral.prototype.toString = fromAqlWithType('num');
 
 function IntegerLiteral(value) {
   if (value && (
@@ -122,7 +116,6 @@ function IntegerLiteral(value) {
 IntegerLiteral.prototype = new Expression();
 IntegerLiteral.prototype.constructor = IntegerLiteral;
 IntegerLiteral.prototype.toAQL = function () {return String(this.value);};
-IntegerLiteral.prototype.toString = fromAqlWithType('int');
 
 function StringLiteral(value) {
   if (value && value instanceof StringLiteral) {value = value.value;}
@@ -132,7 +125,6 @@ function StringLiteral(value) {
 StringLiteral.prototype = new Expression();
 StringLiteral.prototype.constructor = StringLiteral;
 StringLiteral.prototype.toAQL = function () {return JSON.stringify(this.value);};
-StringLiteral.prototype.toString = fromAqlWithType('str');
 
 function ListLiteral(value) {
   if (value && value instanceof ListLiteral) {value = value.value;}
@@ -150,13 +142,6 @@ ListLiteral.prototype.toAQL = function () {
   var value = [], i;
   for (i = 0; i < this.value.length; i++) {
     value.push(wrapAQL(this.value[i]));
-  }
-  return '[' + value.join(', ') + ']';
-};
-ListLiteral.prototype.toString = function () {
-  var value = [], i;
-  for (i = 0; i < this.value.length; i++) {
-    value.push(this.value[i].toString());
   }
   return '[' + value.join(', ') + ']';
 };
@@ -184,18 +169,6 @@ ObjectLiteral.prototype.toAQL = function () {
   }
   return '{' + items.join(', ') + '}';
 };
-ObjectLiteral.prototype.toString = function () {
-  var items = [], key;
-  for (key in this.value) {
-    if (this.value.hasOwnProperty(key)) {
-      if (!Identifier.re.exec(key)) {
-        key = JSON.stringify(key);
-      }
-      items.push(key + ': ' + this.value[key].toString());
-    }
-  }
-  return '{' + items.join(', ') + '}';
-};
 
 function RangeExpression(start, end) {
   this.start = autoCastToken(start);
@@ -206,9 +179,6 @@ RangeExpression.prototype.constructor = RangeExpression;
 RangeExpression.prototype.toAQL = function () {
   return wrapAQL(this.start) + '..' + wrapAQL(this.end);
 };
-RangeExpression.prototype.toString = function () {
-  return this.start.toString() + '..' + this.end.toString();
-};
 
 function PropertyAccess(obj, key) {
   this.obj = autoCastToken(obj);
@@ -218,9 +188,6 @@ PropertyAccess.prototype = new Expression();
 PropertyAccess.prototype.constructor = PropertyAccess;
 PropertyAccess.prototype.toAQL = function () {
   return wrapAQL(this.obj) + '[' + wrapAQL(this.key) + ']';
-};
-PropertyAccess.prototype.toString = function () {
-  return this.obj.toString() + '[' + this.key.toString() + ']';
 };
 
 function Keyword(value) {
@@ -239,7 +206,6 @@ Keyword.prototype.constructor = Keyword;
 Keyword.prototype.toAQL = function () {
   return String(this.value).toUpperCase();
 };
-Keyword.prototype.toString = fromAqlWithType('keyword');
 
 function Identifier(value) {
   if (value && value instanceof Identifier) {value = value.value;}
@@ -261,7 +227,6 @@ Identifier.prototype.toAQL = function () {
   }
   return '`' + value + '`';
 };
-Identifier.prototype.toString = fromAqlWithType('id');
 
 function SimpleReference(value) {
   if (value && value instanceof SimpleReference) {value = value.value;}
@@ -287,7 +252,6 @@ SimpleReference.prototype.toAQL = function () {
   }
   return tokens.join('.');
 };
-SimpleReference.prototype.toString = fromAqlWithType('ref');
 
 function UnaryOperation(operator, value) {
   this.operator = operator;
@@ -296,15 +260,6 @@ function UnaryOperation(operator, value) {
 UnaryOperation.prototype = new Operation();
 UnaryOperation.prototype.constructor = UnaryOperation;
 UnaryOperation.prototype.toAQL = function () {
-  if (this.value instanceof Operation) {
-    return this.operator + '(' + wrapAQL(this.value) + ')';
-  }
-  return this.operator + wrapAQL(this.value);
-};
-UnaryOperation.prototype.toString = function () {
-  if (this.value instanceof Operation) {
-    return this.operator + '(' + this.value.toString() + ')';
-  }
   return this.operator + wrapAQL(this.value);
 };
 
@@ -316,18 +271,7 @@ function BinaryOperation(operator, a, b) {
 BinaryOperation.prototype = new Operation();
 BinaryOperation.prototype.constructor = BinaryOperation;
 BinaryOperation.prototype.toAQL = function () {
-  return [
-    this.a instanceof Operation ? '(' + wrapAQL(this.a) + ')' : wrapAQL(this.a),
-    this.operator,
-    this.b instanceof Operation ? '(' + wrapAQL(this.b) + ')' : wrapAQL(this.b)
-  ].join(' ');
-};
-BinaryOperation.prototype.toString = function () {
-  return [
-    this.a instanceof Operation ? '(' + this.a.toString() + ')' : this.a.toString(),
-    this.operator,
-    this.b instanceof Operation ? '(' + this.b.toString() + ')' : this.b.toString()
-  ].join(' ');
+  return [wrapAQL(this.a), this.operator, wrapAQL(this.b)].join(' ');
 };
 
 function TernaryOperation(operator1, operator2, a, b, c) {
@@ -341,20 +285,11 @@ TernaryOperation.prototype = new Operation();
 TernaryOperation.prototype.constructor = TernaryOperation;
 TernaryOperation.prototype.toAQL = function () {
   return [
-    this.a instanceof Operation ? '(' + wrapAQL(this.a) + ')' : wrapAQL(this.a),
+    wrapAQL(this.a),
     this.operator1,
-    this.b instanceof Operation ? '(' + wrapAQL(this.b) + ')' : wrapAQL(this.b),
+    wrapAQL(this.b),
     this.operator2,
-    this.c instanceof Operation ? '(' + wrapAQL(this.c) + ')' : wrapAQL(this.c)
-  ].join(' ');
-};
-TernaryOperation.prototype.toString = function () {
-  return [
-    this.a instanceof Operation ? '(' + this.a.toString() + ')' : this.a.toString(),
-    this.operator1,
-    this.b instanceof Operation ? '(' + this.b.toString() + ')' : this.b.toString(),
-    this.operator2,
-    this.c instanceof Operation ? '(' + this.c.toString() + ')' : this.c.toString()
+    wrapAQL(this.c)
   ].join(' ');
 };
 
@@ -371,13 +306,6 @@ FunctionCall.prototype.toAQL = function () {
   var args = [], i;
   for (i = 0; i < this.args.length; i++) {
     args.push(wrapAQL(this.args[i]));
-  }
-  return this.functionName + '(' + args.join(', ') + ')';
-};
-FunctionCall.prototype.toString = function () {
-  var args = [], i;
-  for (i = 0; i < this.args.length; i++) {
-    args.push(this.args[i].toString());
   }
   return this.functionName + '(' + args.join(', ') + ')';
 };
