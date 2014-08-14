@@ -488,11 +488,15 @@ SortExpression.keywords = ['ASC', 'DESC'];
 SortExpression.prototype = new PartialStatement();
 SortExpression.prototype.constructor = SortExpression;
 SortExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  if (this.offset !== undefined) {
-    return prefix + 'LIMIT ' + wrapAQL(this.offset) + ', ' + wrapAQL(this.count);
+  var args = [], j = 0;
+  for (var i = 0; i < this.args.length; i++) {
+    if (this.args[i] instanceof Keyword) {
+      args[j] += ' ' + this.args[i].toAQL();
+    } else {
+      j = args.push(wrapAQL(this.args[i])) - 1;
+    }
   }
-  return prefix + 'LIMIT ' + wrapAQL(this.count);
+  return (this.prev ? wrapAQL(this.prev) + ' ' : '') + args.join(', ');
 };
 
 function LimitExpression(prev, offset, count) {
