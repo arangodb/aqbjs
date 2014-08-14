@@ -402,7 +402,7 @@ ForExpression.prototype = new PartialStatement();
 ForExpression.prototype.constructor = ForExpression;
 ForExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'FOR ' + wrapAQL(this.varname) +
     ' IN ' + wrapAQL(this.expr)
   );
@@ -416,7 +416,7 @@ FilterExpression.prototype = new PartialStatement();
 FilterExpression.prototype.constructor = FilterExpression;
 FilterExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'FILTER ' + wrapAQL(this.expr)
   );
 };
@@ -440,7 +440,7 @@ LetExpression.prototype.toAQL = function () {
     }
   }
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'LET ' + dfns.join(', ')
   );
 };
@@ -467,7 +467,7 @@ CollectExpression.prototype.toAQL = function () {
     }
   }
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'COLLECT ' + dfns.join(', ')
   );
 };
@@ -492,7 +492,7 @@ CollectIntoExpression.prototype.toAQL = function () {
     }
   }
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'COLLECT ' + dfns.join(', ') +
     ' INTO ' + this.varname
   );
@@ -532,7 +532,7 @@ SortExpression.prototype.toAQL = function () {
       j = args.push(wrapAQL(this.args[i])) - 1;
     }
   }
-  return (this.prev ? wrapAQL(this.prev) + ' ' : '') + args.join(', ');
+  return (this.prev ? this.prev.toAQL() + ' ' : '') + args.join(', ');
 };
 
 function LimitExpression(prev, offset, count) {
@@ -548,7 +548,7 @@ LimitExpression.prototype = new PartialStatement();
 LimitExpression.prototype.constructor = LimitExpression;
 LimitExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'LIMIT ' + (
       this.offset === undefined ?
       wrapAQL(this.count) :
@@ -569,7 +569,7 @@ ReturnExpression.prototype = new Statement();
 ReturnExpression.prototype.constructor = ReturnExpression;
 ReturnExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'RETURN ' + wrapAQL(this.value)
   );
 };
@@ -586,7 +586,7 @@ RemoveExpression.prototype.options = function (opts) {
 };
 RemoveExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'REMOVE ' + wrapAQL(this.expr) +
     ' IN ' + wrapAQL(this.collection)
   );
@@ -602,7 +602,7 @@ RemoveExpressionWithOptions.prototype = new Statement();
 RemoveExpressionWithOptions.prototype.constructor = RemoveExpressionWithOptions;
 RemoveExpressionWithOptions.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'REMOVE ' + wrapAQL(this.expr) +
     ' IN ' + wrapAQL(this.collection) +
     ' OPTIONS ' + wrapAQL(this.opts)
@@ -621,7 +621,7 @@ InsertExpression.prototype.options = function (opts) {
 };
 InsertExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'INSERT ' + wrapAQL(this.expr) +
     ' INTO ' + wrapAQL(this.collection)
   );
@@ -637,7 +637,7 @@ InsertExpressionWithOptions.prototype = new Statement();
 InsertExpressionWithOptions.prototype.constructor = InsertExpressionWithOptions;
 InsertExpressionWithOptions.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'INSERT ' + wrapAQL(this.expr) +
     ' INTO ' + wrapAQL(this.collection) +
     ' OPTIONS ' + wrapAQL(this.opts)
@@ -657,7 +657,7 @@ UpdateExpression.prototype.options = function (opts) {
 };
 UpdateExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'UPDATE ' + wrapAQL(this.expr) +
     ' WITH ' + wrapAQL(this.withExpr) +
     ' IN ' + wrapAQL(this.collection)
@@ -675,7 +675,7 @@ UpdateExpressionWithOptions.prototype = new Statement();
 UpdateExpressionWithOptions.prototype.constructor = UpdateExpressionWithOptions;
 UpdateExpressionWithOptions.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'UPDATE ' + wrapAQL(this.expr) +
     ' WITH ' + wrapAQL(this.withExpr) +
     ' IN ' + wrapAQL(this.collection) +
@@ -696,7 +696,7 @@ ReplaceExpression.prototype.options = function (opts) {
 };
 ReplaceExpression.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'REPLACE ' + wrapAQL(this.expr) +
     ' WITH ' + wrapAQL(this.withExpr) +
     ' IN ' + wrapAQL(this.collection)
@@ -714,7 +714,7 @@ ReplaceExpressionWithOptions.prototype = new Statement();
 ReplaceExpressionWithOptions.prototype.constructor = ReplaceExpressionWithOptions;
 ReplaceExpressionWithOptions.prototype.toAQL = function () {
   return (
-    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
     'REPLACE ' + wrapAQL(this.expr) +
     ' WITH ' + wrapAQL(this.withExpr) +
     ' IN ' + wrapAQL(this.collection) +
