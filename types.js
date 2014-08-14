@@ -574,75 +574,151 @@ ReturnExpression.prototype.toAQL = function () {
   );
 };
 
-function RemoveExpression(prev, expr, collection, opts) {
+function RemoveExpression(prev, expr, collection) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
   this.collection = new Identifier(collection);
-  this.opts = opts === undefined ? null : autoCastToken(opts);
 }
 RemoveExpression.prototype = new Statement();
 RemoveExpression.prototype.constructor = RemoveExpression;
+RemoveExpression.prototype.options = function (opts) {
+  return new RemoveExpressionWithOptions(this.prev, this.expr, this.collection, opts);
+};
 RemoveExpression.prototype.toAQL = function () {
   return (
     (this.prev ? wrapAQL(this.prev) + ' ' : '') +
     'REMOVE ' + wrapAQL(this.expr) +
-    ' IN ' + wrapAQL(this.collection) +
-    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+    ' IN ' + wrapAQL(this.collection)
   );
 };
 
-function InsertExpression(prev, expr, collection, opts) {
+function RemoveExpressionWithOptions(prev, expr, collection, opts) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
   this.collection = new Identifier(collection);
-  this.opts = opts === undefined ? null : autoCastToken(opts);
+  this.opts = new ObjectLiteral(opts);
+}
+RemoveExpressionWithOptions.prototype = new Statement();
+RemoveExpressionWithOptions.prototype.constructor = RemoveExpressionWithOptions;
+RemoveExpressionWithOptions.prototype.toAQL = function () {
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'REMOVE ' + wrapAQL(this.expr) +
+    ' IN ' + wrapAQL(this.collection) +
+    ' OPTIONS ' + wrapAQL(this.opts)
+  );
+};
+
+function InsertExpression(prev, expr, collection) {
+  this.prev = prev;
+  this.expr = autoCastToken(expr);
+  this.collection = new Identifier(collection);
 }
 InsertExpression.prototype = new Statement();
 InsertExpression.prototype.constructor = InsertExpression;
+InsertExpression.prototype.options = function (opts) {
+  return new InsertExpressionWithOptions(this.prev, this.expr, this.collection, opts);
+};
 InsertExpression.prototype.toAQL = function () {
   return (
     (this.prev ? wrapAQL(this.prev) + ' ' : '') +
     'INSERT ' + wrapAQL(this.expr) +
-    ' INTO ' + wrapAQL(this.collection) +
-    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+    ' INTO ' + wrapAQL(this.collection)
   );
 };
 
-function UpdateExpression(prev, expr, withExpr, collection, opts) {
+function InsertExpressionWithOptions(prev, expr, collection, opts) {
+  this.prev = prev;
+  this.expr = autoCastToken(expr);
+  this.collection = new Identifier(collection);
+  this.opts = new ObjectLiteral(opts);
+}
+InsertExpressionWithOptions.prototype = new Statement();
+InsertExpressionWithOptions.prototype.constructor = InsertExpressionWithOptions;
+InsertExpressionWithOptions.prototype.toAQL = function () {
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'INSERT ' + wrapAQL(this.expr) +
+    ' INTO ' + wrapAQL(this.collection) +
+    ' OPTIONS ' + wrapAQL(this.opts)
+  );
+};
+
+function UpdateExpression(prev, expr, withExpr, collection) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
   this.withExpr = autoCastToken(withExpr);
   this.collection = new Identifier(collection);
-  this.opts = opts === undefined ? null : autoCastToken(opts);
 }
 UpdateExpression.prototype = new Statement();
 UpdateExpression.prototype.constructor = UpdateExpression;
+UpdateExpression.prototype.options = function (opts) {
+  return new UpdateExpressionWithOptions(this.prev, this.expr, this.withExpr, this.collection, opts);
+};
 UpdateExpression.prototype.toAQL = function () {
   return (
     (this.prev ? wrapAQL(this.prev) + ' ' : '') +
     'UPDATE ' + wrapAQL(this.expr) +
     ' WITH ' + wrapAQL(this.withExpr) +
-    ' IN ' + wrapAQL(this.collection) +
-    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+    ' IN ' + wrapAQL(this.collection)
   );
 };
 
-function ReplaceExpression(prev, expr, withExpr, collection, opts) {
+function UpdateExpressionWithOptions(prev, expr, withExpr, collection, opts) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
   this.withExpr = autoCastToken(withExpr);
   this.collection = new Identifier(collection);
-  this.opts = opts === undefined ? null : autoCastToken(opts);
+  this.opts = new ObjectLiteral(opts);
+}
+UpdateExpressionWithOptions.prototype = new Statement();
+UpdateExpressionWithOptions.prototype.constructor = UpdateExpressionWithOptions;
+UpdateExpressionWithOptions.prototype.toAQL = function () {
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'UPDATE ' + wrapAQL(this.expr) +
+    ' WITH ' + wrapAQL(this.withExpr) +
+    ' IN ' + wrapAQL(this.collection) +
+    ' OPTIONS ' + wrapAQL(this.opts)
+  );
+};
+
+function ReplaceExpression(prev, expr, withExpr, collection) {
+  this.prev = prev;
+  this.expr = autoCastToken(expr);
+  this.withExpr = autoCastToken(withExpr);
+  this.collection = new Identifier(collection);
 }
 ReplaceExpression.prototype = new Statement();
 ReplaceExpression.prototype.constructor = ReplaceExpression;
+ReplaceExpression.prototype.options = function (opts) {
+  return new ReplaceExpressionWithOptions(this.prev, this.expr, this.withExpr, this.collection, opts);
+};
 ReplaceExpression.prototype.toAQL = function () {
   return (
     (this.prev ? wrapAQL(this.prev) + ' ' : '') +
     'REPLACE ' + wrapAQL(this.expr) +
     ' WITH ' + wrapAQL(this.withExpr) +
+    ' IN ' + wrapAQL(this.collection)
+  );
+};
+
+function ReplaceExpressionWithOptions(prev, expr, withExpr, collection, opts) {
+  this.prev = prev;
+  this.expr = autoCastToken(expr);
+  this.withExpr = autoCastToken(withExpr);
+  this.collection = new Identifier(collection);
+  this.opts = new ObjectLiteral(opts);
+}
+ReplaceExpressionWithOptions.prototype = new Statement();
+ReplaceExpressionWithOptions.prototype.constructor = ReplaceExpressionWithOptions;
+ReplaceExpressionWithOptions.prototype.toAQL = function () {
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'REPLACE ' + wrapAQL(this.expr) +
+    ' WITH ' + wrapAQL(this.withExpr) +
     ' IN ' + wrapAQL(this.collection) +
-    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+    ' OPTIONS ' + wrapAQL(this.opts)
   );
 };
 
