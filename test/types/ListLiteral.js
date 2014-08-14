@@ -58,4 +58,19 @@ describe('ListLiteral', function () {
       expect(function () {new ListLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
+  it('wraps Operation values in parentheses', function () {
+    var op = new types._Operation();
+    op.toAQL = function () {return 'x';};
+    expect(new ListLiteral([op]).toAQL()).to.equal('[(x)]');
+  });
+  it('wraps Statement values in parentheses', function () {
+    var st = new types._Statement();
+    st.toAQL = function () {return 'x';};
+    expect(new ListLiteral([st]).toAQL()).to.equal('[(x)]');
+  });
+  it('wraps PartialStatement values in parentheses', function () {
+    var ps = new types._PartialStatement();
+    ps.toAQL = function () {return 'x';};
+    expect(new ListLiteral([ps]).toAQL()).to.equal('[(x)]');
+  });
 });
