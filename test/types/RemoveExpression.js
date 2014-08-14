@@ -3,20 +3,20 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  ReplaceExpression = types.ReplaceExpression,
+  RemoveExpression = types.RemoveExpression,
   AqlError = require('../../errors').AqlError,
   isAqlError = function (e) {
     expect(e).to.be.an(AqlError);
   };
 
-describe('ReplaceExpression', function () {
+describe('RemoveExpression', function () {
   it('returns a statement', function () {
-    var expr = new ReplaceExpression(null, 'x', 'y', 'z');
+    var expr = new RemoveExpression(null, 'x', 'y');
     expect(expr).to.be.a(types._Statement);
     expect(expr.toAQL).to.be.a('function');
   });
-  it('generates a REPLACE statement', function () {
-    expect(new ReplaceExpression(null, 'x', 'y', 'z').toAQL()).to.equal('REPLACE x WITH y IN z');
+  it('generates a REMOVE statement', function () {
+    expect(new RemoveExpression(null, 'x', 'y').toAQL()).to.equal('REMOVE x IN y');
   });
   it('auto-casts expressions', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
@@ -29,52 +29,23 @@ describe('ReplaceExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new ReplaceExpression(null, arr[i], 'y', 'z').expr.constructor).to.equal(ctors[i]);
+      expect(new RemoveExpression(null, arr[i], 'y').expr.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation expressions in parentheses', function () {
     var op = new types._Operation();
     op.toAQL = function () {return 'x';};
-    expect(new ReplaceExpression(null, op, 'y', 'z').toAQL()).to.equal('REPLACE (x) WITH y IN z');
+    expect(new RemoveExpression(null, op, 'y').toAQL()).to.equal('REMOVE (x) IN y');
   });
   it('wraps Statement expressions in parentheses', function () {
     var st = new types._Statement();
     st.toAQL = function () {return 'x';};
-    expect(new ReplaceExpression(null, st, 'y', 'z').toAQL()).to.equal('REPLACE (x) WITH y IN z');
+    expect(new RemoveExpression(null, st, 'y').toAQL()).to.equal('REMOVE (x) IN y');
   });
   it('wraps PartialStatement expressions in parentheses', function () {
     var ps = new types._PartialStatement();
     ps.toAQL = function () {return 'x';};
-    expect(new ReplaceExpression(null, ps, 'y', 'z').toAQL()).to.equal('REPLACE (x) WITH y IN z');
-  });
-  it('auto-casts with-expressions', function () {
-    var arr = [42, 'id', 'some.ref', '"hello"', false, null];
-    var ctors = [
-      types.IntegerLiteral,
-      types.Identifier,
-      types.SimpleReference,
-      types.StringLiteral,
-      types.BooleanLiteral,
-      types.NullLiteral
-    ];
-    for (var i = 0; i < arr.length; i++) {
-      expect(new ReplaceExpression(null, 'x', arr[i], 'z').withExpr.constructor).to.equal(ctors[i]);
-    }
-  });
-  it('wraps Operation with-expressions in parentheses', function () {
-    var op = new types._Operation();
-    op.toAQL = function () {return 'y';};
-    expect(new ReplaceExpression(null, 'x', op, 'z').toAQL()).to.equal('REPLACE x WITH (y) IN z');
-  });
-  it('wraps Statement with-expressions in parentheses', function () {
-    var st = new types._Statement();
-    st.toAQL = function () {return 'y';};
-    expect(new ReplaceExpression(null, 'x', st, 'z').toAQL()).to.equal('REPLACE x WITH (y) IN z');
-  });
-  it('wraps PartialStatement with-expressions in parentheses', function () {
-    var ps = new types._PartialStatement();
-    ps.toAQL = function () {return 'y';};
-    expect(new ReplaceExpression(null, 'x', ps, 'z').toAQL()).to.equal('REPLACE x WITH (y) IN z');
+    expect(new RemoveExpression(null, ps, 'y').toAQL()).to.equal('REMOVE (x) IN y');
   });
   it('wraps well-formed strings as collection names', function () {
     var values = [
@@ -87,7 +58,7 @@ describe('ReplaceExpression', function () {
       '__cRaZy__'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(new ReplaceExpression(null, 'x', 'y', values[i]).collection.toAQL()).to.equal(values[i]);
+      expect(new RemoveExpression(null, 'x', values[i]).collection.toAQL()).to.equal(values[i]);
     }
   });
   it('does not accept malformed strings as collection names', function () {
@@ -100,7 +71,7 @@ describe('ReplaceExpression', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ReplaceExpression(null, 'x', 'y', values[i]);}).to.throwException(isAqlError);
+      expect(function () {new RemoveExpression(null, 'x', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as collection names', function () {
@@ -117,19 +88,19 @@ describe('ReplaceExpression', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ReplaceExpression(null, 'x', 'y', values[i]);}).to.throwException(isAqlError);
+      expect(function () {new RemoveExpression(null, 'x', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('converts preceding nodes to AQL', function () {
     var ps = new types._PartialStatement();
     ps.toAQL = function () {return '$';};
-    expect(new ReplaceExpression(ps, 'x', 'y', 'z').toAQL()).to.equal('$ REPLACE x WITH y IN z');
+    expect(new RemoveExpression(ps, 'x', 'y').toAQL()).to.equal('$ REMOVE x IN y');
   });
   describe('options', function () {
-    var expr = new ReplaceExpression(null, 'x', 'y', 'z');
-    it('returns a ReplaceExpressionWithOptions', function () {
+    var expr = new RemoveExpression(null, 'x', 'y');
+    it('returns a RemoveExpressionWithOptions', function () {
       var optExpr = expr.options({});
-      expect(optExpr).to.be.a(types._ReplaceExpressionWithOptions);
+      expect(optExpr).to.be.a(types._RemoveExpressionWithOptions);
       expect(optExpr.toAQL).to.be.a('function');
     });
     it('wraps objects', function () {
