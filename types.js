@@ -254,6 +254,9 @@ SimpleReference.prototype.toAQL = function () {
 };
 
 function UnaryOperation(operator, value) {
+  if (!operator || typeof operator !== 'string') {
+    throw new AqlError('Expected operator to be a string: ' + operator);
+  }
   this.operator = operator;
   this.value = autoCastToken(value);
 }
@@ -636,6 +639,7 @@ ReplaceExpression.prototype.toAQL = function () {
 
 exports.autoCastToken = autoCastToken;
 exports._Expression = Expression;
+exports._Operation = Operation;
 exports.RawExpression = RawExpression;
 exports.NullLiteral = NullLiteral;
 exports.BooleanLiteral = BooleanLiteral;
