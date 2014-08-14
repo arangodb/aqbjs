@@ -294,12 +294,24 @@ TernaryOperation.prototype.toAQL = function () {
 };
 
 function FunctionCall(functionName, args) {
+  if (!functionName || typeof functionName !== 'string') {
+    throw new AqlError('Expected function name to be a string: ' + functionName);
+  }
+  if (!functionName.match(FunctionCall.re)) {
+    throw new AqlError('Not a valid function name: ' + functionName);
+  }
+  if (args && Object.prototype.toString.call(args) !== '[object Array]') {
+    throw new AqlError('Expected arguments to be an array: ' + args);
+  }
   this.functionName = functionName;
   this.args = [];
-  for (var i = 0; i < args.length; i++) {
-    this.args[i] = autoCastToken(args[i]);
+  if (args) {
+    for (var i = 0; i < args.length; i++) {
+      this.args[i] = autoCastToken(args[i]);
+    }
   }
 }
+FunctionCall.re = /^[_a-z][_0-9a-z]*(::[_a-z][_0-9a-z]*)*$/i;
 FunctionCall.prototype = new Operation();
 FunctionCall.prototype.constructor = FunctionCall;
 FunctionCall.prototype.toAQL = function () {
