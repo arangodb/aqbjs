@@ -377,8 +377,11 @@ function ForExpression(prev, varname, expr) {
 ForExpression.prototype = new PartialStatement();
 ForExpression.prototype.constructor = ForExpression;
 ForExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  return prefix + 'FOR ' + wrapAQL(this.varname) + ' IN ' + wrapAQL(this.expr);
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'FOR ' + wrapAQL(this.varname) +
+    ' IN ' + wrapAQL(this.expr)
+  );
 };
 
 function FilterExpression(prev, expr) {
@@ -388,8 +391,10 @@ function FilterExpression(prev, expr) {
 FilterExpression.prototype = new PartialStatement();
 FilterExpression.prototype.constructor = FilterExpression;
 FilterExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  return prefix + 'FILTER ' + wrapAQL(this.expr);
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'FILTER ' + wrapAQL(this.expr)
+  );
 };
 
 function LetExpression(prev, dfns) {
@@ -404,14 +409,16 @@ function LetExpression(prev, dfns) {
 LetExpression.prototype = new PartialStatement();
 LetExpression.prototype.constructor = LetExpression;
 LetExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
   var dfns = [];
   for (var key in this.dfns) {
     if (this.dfns.hasOwnProperty(key)) {
       dfns.push(key + ' = ' + wrapAQL(this.dfns[key]));
     }
   }
-  return prefix + 'LET ' + dfns.join(', ');
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'LET ' + dfns.join(', ')
+  );
 };
 
 function CollectExpression(prev, dfns) {
@@ -429,14 +436,16 @@ CollectExpression.prototype.into = function (varname) {
   return new CollectIntoExpression(this.prev, this.dfns, varname);
 };
 CollectExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
   var dfns = [];
   for (var key in this.dfns) {
     if (this.dfns.hasOwnProperty(key)) {
       dfns.push(key + ' = ' + wrapAQL(this.dfns[key]));
     }
   }
-  return prefix + 'COLLECT ' + dfns.join(', ');
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'COLLECT ' + dfns.join(', ')
+  );
 };
 
 function CollectIntoExpression(prev, dfns, varname) {
@@ -452,14 +461,17 @@ function CollectIntoExpression(prev, dfns, varname) {
 CollectIntoExpression.prototype = new PartialStatement();
 CollectIntoExpression.prototype.constructor = CollectIntoExpression;
 CollectIntoExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
   var dfns = [];
   for (var key in this.dfns) {
     if (this.dfns.hasOwnProperty(key)) {
       dfns.push(key + ' = ' + wrapAQL(this.dfns[key]));
     }
   }
-  return prefix + 'COLLECT ' + dfns.join(', ') + ' INTO ' + this.varname;
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'COLLECT ' + dfns.join(', ') +
+    ' INTO ' + this.varname
+  );
 };
 
 function SortExpression(prev, args) {
@@ -511,11 +523,14 @@ function LimitExpression(prev, offset, count) {
 LimitExpression.prototype = new PartialStatement();
 LimitExpression.prototype.constructor = LimitExpression;
 LimitExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  if (this.offset !== undefined) {
-    return prefix + 'LIMIT ' + wrapAQL(this.offset) + ', ' + wrapAQL(this.count);
-  }
-  return prefix + 'LIMIT ' + wrapAQL(this.count);
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'LIMIT ' + (
+      this.offset === undefined ?
+      wrapAQL(this.count) :
+      wrapAQL(this.offset) + ', ' + wrapAQL(this.count)
+    )
+  );
 };
 
 function Statement() {}
@@ -529,8 +544,10 @@ function ReturnExpression(prev, value) {
 ReturnExpression.prototype = new Statement();
 ReturnExpression.prototype.constructor = ReturnExpression;
 ReturnExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  return prefix + 'RETURN ' + wrapAQL(this.value);
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'RETURN ' + wrapAQL(this.value)
+  );
 };
 
 function RemoveExpression(prev, expr, collection, opts) {
@@ -542,11 +559,12 @@ function RemoveExpression(prev, expr, collection, opts) {
 RemoveExpression.prototype = new Statement();
 RemoveExpression.prototype.constructor = RemoveExpression;
 RemoveExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  var suffix = (this.opts ? ' ' + wrapAQL(this.opts) : '');
-  return prefix + (
-    'REMOVE ' + wrapAQL(this.expr) + ' IN ' + wrapAQL(this.collection)
-  ) + suffix;
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'REMOVE ' + wrapAQL(this.expr) +
+    ' IN ' + wrapAQL(this.collection) +
+    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+  );
 };
 
 function InsertExpression(prev, expr, collection, opts) {
@@ -558,11 +576,12 @@ function InsertExpression(prev, expr, collection, opts) {
 InsertExpression.prototype = new Statement();
 InsertExpression.prototype.constructor = InsertExpression;
 InsertExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  var suffix = (this.opts ? ' ' + wrapAQL(this.opts) : '');
-  return prefix + (
-    'INSERT ' + wrapAQL(this.expr) + ' INTO ' + wrapAQL(this.collection)
-  ) + suffix;
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'INSERT ' + wrapAQL(this.expr) +
+    ' INTO ' + wrapAQL(this.collection) +
+    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+  );
 };
 
 function UpdateExpression(prev, expr, withExpr, collection, opts) {
@@ -575,11 +594,13 @@ function UpdateExpression(prev, expr, withExpr, collection, opts) {
 UpdateExpression.prototype = new Statement();
 UpdateExpression.prototype.constructor = UpdateExpression;
 UpdateExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  var suffix = (this.opts ? ' ' + wrapAQL(this.opts) : '');
-  return prefix + (
-    'UPDATE ' + wrapAQL(this.expr) + ' WITH ' + wrapAQL(this.withExpr) + ' IN ' + wrapAQL(this.collection)
-  ) + suffix;
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'UPDATE ' + wrapAQL(this.expr) +
+    ' WITH ' + wrapAQL(this.withExpr) +
+    ' IN ' + wrapAQL(this.collection) +
+    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+  );
 };
 
 function ReplaceExpression(prev, expr, withExpr, collection, opts) {
@@ -592,11 +613,13 @@ function ReplaceExpression(prev, expr, withExpr, collection, opts) {
 ReplaceExpression.prototype = new Statement();
 ReplaceExpression.prototype.constructor = ReplaceExpression;
 ReplaceExpression.prototype.toAQL = function () {
-  var prefix = (this.prev ? wrapAQL(this.prev) + ' ' : '');
-  var suffix = (this.opts ? ' ' + wrapAQL(this.opts) : '');
-  return prefix + (
-    'REPLACE ' + wrapAQL(this.expr) + ' WITH ' + wrapAQL(this.withExpr) + ' IN ' + wrapAQL(this.collection)
-  ) + suffix;
+  return (
+    (this.prev ? wrapAQL(this.prev) + ' ' : '') +
+    'REPLACE ' + wrapAQL(this.expr) +
+    ' WITH ' + wrapAQL(this.withExpr) +
+    ' IN ' + wrapAQL(this.collection) +
+    (this.opts ? ' ' + wrapAQL(this.opts) : '')
+  );
 };
 
 exports.autoCastToken = autoCastToken;
