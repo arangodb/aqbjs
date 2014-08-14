@@ -37,6 +37,7 @@ describe('Keyword', function () {
   });
   it('does not accept malformed strings', function () {
     var values = [
+      '',
       '-x',
       'in-valid',
       'also bad',

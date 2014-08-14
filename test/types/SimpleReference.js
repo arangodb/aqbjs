@@ -44,6 +44,7 @@ describe('SimpleReference', function () {
   });
   it('does not accept malformed strings', function () {
     var values = [
+      '',
       '-x',
       'a..b',
       'a.b..c',
