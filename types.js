@@ -757,3 +757,7 @@ exports.RemoveExpression = RemoveExpression;
 exports.InsertExpression = InsertExpression;
 exports.UpdateExpression = UpdateExpression;
 exports.ReplaceExpression = ReplaceExpression;
+exports._RemoveExpressionWithOptions = RemoveExpressionWithOptions;
+exports._InsertExpressionWithOptions = InsertExpressionWithOptions;
+exports._UpdateExpressionWithOptions = UpdateExpressionWithOptions;
+exports._ReplaceExpressionWithOptions = ReplaceExpressionWithOptions;
