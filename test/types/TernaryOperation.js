@@ -3,15 +3,15 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  BinaryOperation = types.BinaryOperation,
+  TernaryOperation = types.TernaryOperation,
   AqlError = require('../../errors').AqlError,
   isAqlError = function (e) {
     expect(e).to.be.an(AqlError);
   };
 
-describe('BinaryOperation', function () {
+describe('TernaryOperation', function () {
   it('returns an expression', function () {
-    var expr = new BinaryOperation('+', 'x', 'y');
+    var expr = new TernaryOperation('?', ':', 'x', 'y', 'z');
     expect(expr).to.be.an(types._Expression);
     expect(expr.toAQL).to.be.a('function');
   });
@@ -26,7 +26,8 @@ describe('BinaryOperation', function () {
       'bad:bad:bad'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(new BinaryOperation(values[i], 'x', 'y').toAQL()).to.equal('x ' + values[i] + ' y');
+      var op = new TernaryOperation(values[i], values[i], 'x', 'y', 'z');
+      expect(op.toAQL()).to.equal('x ' + values[i] + ' y ' + values[i] + ' z');
     }
   });
   it('does not accept any other values as operators', function () {
@@ -44,7 +45,7 @@ describe('BinaryOperation', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new BinaryOperation(values[i], 'x', 'y');}).to.throwException(isAqlError);
+      expect(function () {new TernaryOperation(values[i], values[i], 'x', 'y', 'z');}).to.throwException(isAqlError);
     }
   });
   it('auto-casts values', function () {
@@ -58,24 +59,25 @@ describe('BinaryOperation', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      var op = new BinaryOperation('+', arr[i], arr[i]);
+      var op = new TernaryOperation('?', ':', arr[i], arr[i], arr[i]);
       expect(op.value1.constructor).to.equal(ctors[i]);
       expect(op.value2.constructor).to.equal(ctors[i]);
+      expect(op.value3.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation values in parentheses', function () {
     var op = new types._Operation();
     op.toAQL = function () {return 'x';};
-    expect(new BinaryOperation('+', op, op).toAQL()).to.equal('(x) + (x)');
+    expect(new TernaryOperation('?', ':', op, op, op).toAQL()).to.equal('(x) ? (x) : (x)');
   });
   it('wraps Statement values in parentheses', function () {
     var st = new types._Statement();
     st.toAQL = function () {return 'x';};
-    expect(new BinaryOperation('+', st, st).toAQL()).to.equal('(x) + (x)');
+    expect(new TernaryOperation('?', ':', st, st, st).toAQL()).to.equal('(x) ? (x) : (x)');
   });
   it('wraps PartialStatement values in parentheses', function () {
     var ps = new types._PartialStatement();
     ps.toAQL = function () {return 'x';};
-    expect(new BinaryOperation('+', ps, ps).toAQL()).to.equal('(x) + (x)');
+    expect(new TernaryOperation('?', ':', ps, ps, ps).toAQL()).to.equal('(x) ? (x) : (x)');
   });
 });
