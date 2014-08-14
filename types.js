@@ -266,33 +266,42 @@ UnaryOperation.prototype.toAQL = function () {
   return this.operator + wrapAQL(this.value);
 };
 
-function BinaryOperation(operator, a, b) {
+function BinaryOperation(operator, value1, value2) {
+  if (!operator || typeof operator !== 'string') {
+    throw new AqlError('Expected operator to be a string: ' + operator);
+  }
   this.operator = operator;
-  this.a = autoCastToken(a);
-  this.b = autoCastToken(b);
+  this.value1 = autoCastToken(value1);
+  this.value2 = autoCastToken(value2);
 }
 BinaryOperation.prototype = new Operation();
 BinaryOperation.prototype.constructor = BinaryOperation;
 BinaryOperation.prototype.toAQL = function () {
-  return [wrapAQL(this.a), this.operator, wrapAQL(this.b)].join(' ');
+  return [wrapAQL(this.value1), this.operator, wrapAQL(this.value2)].join(' ');
 };
 
-function TernaryOperation(operator1, operator2, a, b, c) {
+function TernaryOperation(operator1, operator2, value1, value2, value3) {
+  if (!operator1 || typeof operator1 !== 'string') {
+    throw new AqlError('Expected operator 1 to be a string: ' + operator1);
+  }
+  if (!operator2 || typeof operator2 !== 'string') {
+    throw new AqlError('Expected operator 2 to be a string: ' + operator2);
+  }
   this.operator1 = operator1;
   this.operator2 = operator2;
-  this.a = autoCastToken(a);
-  this.b = autoCastToken(b);
-  this.c = autoCastToken(c);
+  this.value1 = autoCastToken(value1);
+  this.value2 = autoCastToken(value2);
+  this.value3 = autoCastToken(value3);
 }
 TernaryOperation.prototype = new Operation();
 TernaryOperation.prototype.constructor = TernaryOperation;
 TernaryOperation.prototype.toAQL = function () {
   return [
-    wrapAQL(this.a),
+    wrapAQL(this.value1),
     this.operator1,
-    wrapAQL(this.b),
+    wrapAQL(this.value2),
     this.operator2,
-    wrapAQL(this.c)
+    wrapAQL(this.value3)
   ].join(' ');
 };
 
