@@ -99,21 +99,10 @@ describe('RemoveExpression', function () {
   describe('options', function () {
     var expr = new RemoveExpression(null, 'x', 'y');
     it('returns a RemoveExpressionWithOptions', function () {
-      var optExpr = expr.options({});
+      var optExpr = expr.options('a');
       expect(optExpr).to.be.a(types._RemoveExpressionWithOptions);
       expect(optExpr.toAQL).to.be.a('function');
-    });
-    it('wraps objects', function () {
-      var obj = {a: 1, b: 2, c: 3};
-      var optExpr = expr.options(obj);
-      expect(optExpr.opts.value).to.be.an(Object);
-      expect(Object.keys(optExpr.opts.value)).to.eql(Object.keys(obj));
-    });
-    it('clones ObjectLiteral instances', function () {
-      var src = new types.ObjectLiteral({a: 1, b: 2, c: 3}),
-        copy = expr.options(src).opts;
-      expect(src.toAQL()).to.equal(copy.toAQL());
-      expect(src).not.to.equal(copy);
+      expect(optExpr.opts.value).to.equal('a');
     });
   });
 });

@@ -3,14 +3,155 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  UpdateExpressionWithOptions = types.UpdateExpressionWithOptions,
+  UpdateExpressionWithOptions = types._UpdateExpressionWithOptions,
   AqlError = require('../../errors').AqlError,
   isAqlError = function (e) {
     expect(e).to.be.an(AqlError);
   };
 
 describe('UpdateExpressionWithOptions', function () {
-  it.skip('has tests', function () {
-    expect(true).to.equal(false);
+  it('returns a statement', function () {
+    var expr = new UpdateExpressionWithOptions(null, 'x', 'y', 'z', 'a');
+    expect(expr).to.be.a(types._Statement);
+    expect(expr.toAQL).to.be.a('function');
+  });
+  it('generates an UPDATE statement', function () {
+    expect(new UpdateExpressionWithOptions(null, 'x', 'y', 'z', 'a').toAQL()).to.equal('UPDATE x WITH y IN z OPTIONS a');
+  });
+  it('auto-casts expressions', function () {
+    var arr = [42, 'id', 'some.ref', '"hello"', false, null];
+    var ctors = [
+      types.IntegerLiteral,
+      types.Identifier,
+      types.SimpleReference,
+      types.StringLiteral,
+      types.BooleanLiteral,
+      types.NullLiteral
+    ];
+    for (var i = 0; i < arr.length; i++) {
+      expect(new UpdateExpressionWithOptions(null, arr[i], 'y', 'z', 'a').expr.constructor).to.equal(ctors[i]);
+    }
+  });
+  it('wraps Operation expressions in parentheses', function () {
+    var op = new types._Operation();
+    op.toAQL = function () {return 'x';};
+    expect(new UpdateExpressionWithOptions(null, op, 'y', 'z', 'a').toAQL()).to.equal('UPDATE (x) WITH y IN z OPTIONS a');
+  });
+  it('wraps Statement expressions in parentheses', function () {
+    var st = new types._Statement();
+    st.toAQL = function () {return 'x';};
+    expect(new UpdateExpressionWithOptions(null, st, 'y', 'z', 'a').toAQL()).to.equal('UPDATE (x) WITH y IN z OPTIONS a');
+  });
+  it('wraps PartialStatement expressions in parentheses', function () {
+    var ps = new types._PartialStatement();
+    ps.toAQL = function () {return 'x';};
+    expect(new UpdateExpressionWithOptions(null, ps, 'y', 'z', 'a').toAQL()).to.equal('UPDATE (x) WITH y IN z OPTIONS a');
+  });
+  it('auto-casts with-expressions', function () {
+    var arr = [42, 'id', 'some.ref', '"hello"', false, null];
+    var ctors = [
+      types.IntegerLiteral,
+      types.Identifier,
+      types.SimpleReference,
+      types.StringLiteral,
+      types.BooleanLiteral,
+      types.NullLiteral
+    ];
+    for (var i = 0; i < arr.length; i++) {
+      expect(new UpdateExpressionWithOptions(null, 'x', arr[i], 'z', 'a').withExpr.constructor).to.equal(ctors[i]);
+    }
+  });
+  it('wraps Operation with-expressions in parentheses', function () {
+    var op = new types._Operation();
+    op.toAQL = function () {return 'y';};
+    expect(new UpdateExpressionWithOptions(null, 'x', op, 'z', 'a').toAQL()).to.equal('UPDATE x WITH (y) IN z OPTIONS a');
+  });
+  it('wraps Statement with-expressions in parentheses', function () {
+    var st = new types._Statement();
+    st.toAQL = function () {return 'y';};
+    expect(new UpdateExpressionWithOptions(null, 'x', st, 'z', 'a').toAQL()).to.equal('UPDATE x WITH (y) IN z OPTIONS a');
+  });
+  it('wraps PartialStatement with-expressions in parentheses', function () {
+    var ps = new types._PartialStatement();
+    ps.toAQL = function () {return 'y';};
+    expect(new UpdateExpressionWithOptions(null, 'x', ps, 'z', 'a').toAQL()).to.equal('UPDATE x WITH (y) IN z OPTIONS a');
+  });
+  it('wraps well-formed strings as collection names', function () {
+    var values = [
+      '_',
+      '_x',
+      'all_lower_case',
+      'snakeCaseAlso',
+      'CamelCaseHere',
+      'ALL_UPPER_CASE',
+      '__cRaZy__'
+    ];
+    for (var i = 0; i < values.length; i++) {
+      expect(new UpdateExpressionWithOptions(null, 'x', 'y', values[i], 'a').collection.toAQL()).to.equal(values[i]);
+    }
+  });
+  it('does not accept malformed strings as collection names', function () {
+    var values = [
+      '',
+      '-x',
+      'in-valid',
+      'also bad',
+      'überbad',
+      'spaß'
+    ];
+    for (var i = 0; i < values.length; i++) {
+      expect(function () {new UpdateExpressionWithOptions(null, 'x', 'y', values[i], 'a');}).to.throwException(isAqlError);
+    }
+  });
+  it('does not accept any other values as collection names', function () {
+    var values = [
+      new types.StringLiteral('for'),
+      new types.RawExpression('for'),
+      new types.SimpleReference('for'),
+      new types.Keyword('for'),
+      new types.NullLiteral(null),
+      42,
+      true,
+      function () {},
+      {},
+      []
+    ];
+    for (var i = 0; i < values.length; i++) {
+      expect(function () {new UpdateExpressionWithOptions(null, 'x', 'y', values[i], 'a');}).to.throwException(isAqlError);
+    }
+  });
+  it('auto-casts options', function () {
+    var arr = [42, 'id', 'some.ref', '"hello"', false, null];
+    var ctors = [
+      types.IntegerLiteral,
+      types.Identifier,
+      types.SimpleReference,
+      types.StringLiteral,
+      types.BooleanLiteral,
+      types.NullLiteral
+    ];
+    for (var i = 0; i < arr.length; i++) {
+      expect(new UpdateExpressionWithOptions(null, 'x', 'y', 'z', arr[i]).opts.constructor).to.equal(ctors[i]);
+    }
+  });
+  it('wraps Operation options in parentheses', function () {
+    var op = new types._Operation();
+    op.toAQL = function () {return 'a';};
+    expect(new UpdateExpressionWithOptions(null, 'x', 'y', 'z', op).toAQL()).to.equal('UPDATE x WITH y IN z OPTIONS (a)');
+  });
+  it('wraps Statement options in parentheses', function () {
+    var st = new types._Statement();
+    st.toAQL = function () {return 'a';};
+    expect(new UpdateExpressionWithOptions(null, 'x', 'y', 'z', st).toAQL()).to.equal('UPDATE x WITH y IN z OPTIONS (a)');
+  });
+  it('wraps PartialStatement options in parentheses', function () {
+    var ps = new types._PartialStatement();
+    ps.toAQL = function () {return 'a';};
+    expect(new UpdateExpressionWithOptions(null, 'x', 'y', 'z', ps).toAQL()).to.equal('UPDATE x WITH y IN z OPTIONS (a)');
+  });
+  it('converts preceding nodes to AQL', function () {
+    var ps = new types._PartialStatement();
+    ps.toAQL = function () {return '$';};
+    expect(new UpdateExpressionWithOptions(ps, 'x', 'y', 'z', 'a').toAQL()).to.equal('$ UPDATE x WITH y IN z OPTIONS a');
   });
 });

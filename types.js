@@ -597,7 +597,7 @@ function RemoveExpressionWithOptions(prev, expr, collection, opts) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
   this.collection = new Identifier(collection);
-  this.opts = new ObjectLiteral(opts);
+  this.opts = autoCastToken(opts);
 }
 RemoveExpressionWithOptions.prototype = new Statement();
 RemoveExpressionWithOptions.prototype.constructor = RemoveExpressionWithOptions;
@@ -632,7 +632,7 @@ function InsertExpressionWithOptions(prev, expr, collection, opts) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
   this.collection = new Identifier(collection);
-  this.opts = new ObjectLiteral(opts);
+  this.opts = autoCastToken(opts);
 }
 InsertExpressionWithOptions.prototype = new Statement();
 InsertExpressionWithOptions.prototype.constructor = InsertExpressionWithOptions;
@@ -670,7 +670,7 @@ function UpdateExpressionWithOptions(prev, expr, withExpr, collection, opts) {
   this.expr = autoCastToken(expr);
   this.withExpr = autoCastToken(withExpr);
   this.collection = new Identifier(collection);
-  this.opts = new ObjectLiteral(opts);
+  this.opts = autoCastToken(opts);
 }
 UpdateExpressionWithOptions.prototype = new Statement();
 UpdateExpressionWithOptions.prototype.constructor = UpdateExpressionWithOptions;
@@ -709,7 +709,7 @@ function ReplaceExpressionWithOptions(prev, expr, withExpr, collection, opts) {
   this.expr = autoCastToken(expr);
   this.withExpr = autoCastToken(withExpr);
   this.collection = new Identifier(collection);
-  this.opts = new ObjectLiteral(opts);
+  this.opts = autoCastToken(opts);
 }
 ReplaceExpressionWithOptions.prototype = new Statement();
 ReplaceExpressionWithOptions.prototype.constructor = ReplaceExpressionWithOptions;
