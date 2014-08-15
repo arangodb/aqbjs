@@ -57,23 +57,25 @@ describe('ObjectLiteral', function () {
       expect(function () {new ObjectLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
-  it('quotes keys in AQL', function () {
-    var expr = new ObjectLiteral({a: 'b'});
-    expect(expr.toAQL()).to.equal('{"a": b}');
+  it('quotes unsafe keys in AQL', function () {
+    expect(new ObjectLiteral({a: 'b'}).toAQL()).to.equal('{a: b}');
+    expect(new ObjectLiteral({0: 'b'}).toAQL()).to.equal('{0: b}');
+    expect(new ObjectLiteral({' a': 'b'}).toAQL()).to.equal('{" a": b}');
+    expect(new ObjectLiteral({'0a': 'b'}).toAQL()).to.equal('{"0a": b}');
   });
   it('wraps Operation values in parentheses', function () {
     var op = new types._Operation();
     op.toAQL = function () {return 'x';};
-    expect(new ObjectLiteral({an: op}).toAQL()).to.equal('{"an": (x)}');
+    expect(new ObjectLiteral({an: op}).toAQL()).to.equal('{an: (x)}');
   });
   it('wraps Statement values in parentheses', function () {
     var st = new types._Statement();
     st.toAQL = function () {return 'x';};
-    expect(new ObjectLiteral({an: st}).toAQL()).to.equal('{"an": (x)}');
+    expect(new ObjectLiteral({an: st}).toAQL()).to.equal('{an: (x)}');
   });
   it('wraps PartialStatement values in parentheses', function () {
     var ps = new types._PartialStatement();
     ps.toAQL = function () {return 'x';};
-    expect(new ObjectLiteral({an: ps}).toAQL()).to.equal('{"an": (x)}');
+    expect(new ObjectLiteral({an: ps}).toAQL()).to.equal('{an: (x)}');
   });
 });

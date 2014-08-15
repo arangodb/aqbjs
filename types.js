@@ -164,7 +164,11 @@ ObjectLiteral.prototype.toAQL = function () {
   var items = [], key;
   for (key in this.value) {
     if (this.value.hasOwnProperty(key)) {
-      items.push(JSON.stringify(key) + ': ' + wrapAQL(this.value[key]));
+      if (key.match(Identifier.re) || key === String(Number(key))) {
+        items.push(key + ': ' + wrapAQL(this.value[key]));
+      } else {
+        items.push(JSON.stringify(key) + ': ' + wrapAQL(this.value[key]));
+      }
     }
   }
   return '{' + items.join(', ') + '}';
@@ -260,7 +264,7 @@ function UnaryOperation(operator, value) {
   this.operator = operator;
   this.value = autoCastToken(value);
 }
-UnaryOperation.prototype = new Operation();
+UnaryOperation.prototype = new Expression();
 UnaryOperation.prototype.constructor = UnaryOperation;
 UnaryOperation.prototype.toAQL = function () {
   return this.operator + wrapAQL(this.value);
@@ -324,7 +328,7 @@ function FunctionCall(functionName, args) {
   }
 }
 FunctionCall.re = /^[_a-z][_0-9a-z]*(::[_a-z][_0-9a-z]*)*$/i;
-FunctionCall.prototype = new Operation();
+FunctionCall.prototype = new Expression();
 FunctionCall.prototype.constructor = FunctionCall;
 FunctionCall.prototype.toAQL = function () {
   var args = [], i;
