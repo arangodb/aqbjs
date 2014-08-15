@@ -395,7 +395,7 @@ PartialStatement.prototype['return'] = PartialStatement.prototype.return_;
 
 function Definitions(dfns) {
   if (dfns instanceof Definitions) {
-    return dfns;
+    dfns = dfns.dfns;
   }
   this.dfns = [];
   if (!dfns || typeof dfns !== 'object') {
