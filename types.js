@@ -495,7 +495,7 @@ CollectIntoExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'COLLECT ' + this.dfns.toAQL() +
-    ' INTO ' + this.varname
+    ' INTO ' + this.varname.toAQL()
   );
 };
 
