@@ -500,6 +500,12 @@ CollectIntoExpression.prototype.toAQL = function () {
 };
 
 function SortExpression(prev, args) {
+  if (!args || Object.prototype.toString.call(args) !== '[object Array]') {
+    throw new AqlError('Expected sort list to be an array: ' + args);
+  }
+  if (!args.length) {
+    throw new AqlError('Expected sort list not to be empty: ' + args);
+  }
   this.prev = prev;
   this.args = [];
   var allowKeyword = false, i, value;
@@ -533,7 +539,11 @@ SortExpression.prototype.toAQL = function () {
       j = args.push(wrapAQL(this.args[i])) - 1;
     }
   }
-  return (this.prev ? this.prev.toAQL() + ' ' : '') + args.join(', ');
+  return (
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
+    'SORT ' +
+    args.join(', ')
+  );
 };
 
 function LimitExpression(prev, offset, count) {
