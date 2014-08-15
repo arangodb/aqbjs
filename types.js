@@ -723,8 +723,6 @@ ReplaceExpressionWithOptions.prototype.toAQL = function () {
 };
 
 exports.autoCastToken = autoCastToken;
-exports._Expression = Expression;
-exports._Operation = Operation;
 exports.RawExpression = RawExpression;
 exports.NullLiteral = NullLiteral;
 exports.BooleanLiteral = BooleanLiteral;
@@ -742,14 +740,10 @@ exports.UnaryOperation = UnaryOperation;
 exports.BinaryOperation = BinaryOperation;
 exports.TernaryOperation = TernaryOperation;
 exports.FunctionCall = FunctionCall;
-
-exports._PartialStatement = PartialStatement;
-exports._Statement = Statement;
 exports.ForExpression = ForExpression;
 exports.FilterExpression = FilterExpression;
 exports.LetExpression = LetExpression;
 exports.CollectExpression = CollectExpression;
-exports.CollectIntoExpression = CollectIntoExpression;
 exports.SortExpression = SortExpression;
 exports.LimitExpression = LimitExpression;
 exports.ReturnExpression = ReturnExpression;
@@ -757,6 +751,12 @@ exports.RemoveExpression = RemoveExpression;
 exports.InsertExpression = InsertExpression;
 exports.UpdateExpression = UpdateExpression;
 exports.ReplaceExpression = ReplaceExpression;
+
+exports._Expression = Expression;
+exports._Operation = Operation;
+exports._Statement = Statement;
+exports._PartialStatement = PartialStatement;
+exports._CollectIntoExpression = CollectIntoExpression;
 exports._RemoveExpressionWithOptions = RemoveExpressionWithOptions;
 exports._InsertExpressionWithOptions = InsertExpressionWithOptions;
 exports._UpdateExpressionWithOptions = UpdateExpressionWithOptions;
