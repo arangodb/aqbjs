@@ -3,7 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  CollectIntoExpression = types.CollectIntoExpression,
+  CollectIntoExpression = types._CollectIntoExpression,
   AqlError = require('../../errors').AqlError,
   isAqlError = function (e) {
     expect(e).to.be.an(AqlError);
