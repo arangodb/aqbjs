@@ -393,6 +393,40 @@ PartialStatement.prototype['for'] = PartialStatement.prototype.for_;
 PartialStatement.prototype['let'] = PartialStatement.prototype.let_;
 PartialStatement.prototype['return'] = PartialStatement.prototype.return_;
 
+function Definitions(dfns) {
+  if (dfns instanceof Definitions) {
+    return dfns;
+  }
+  this.dfns = [];
+  if (!dfns || typeof dfns !== 'object') {
+    throw new AqlError('Expected definitions to be an object');
+  }
+  if (Object.prototype.toString.call(dfns) === '[object Array]') {
+    for (var i = 0; i < dfns.length; i++) {
+      if (Object.prototype.toString.call(dfns[i]) !== '[object Array]' || dfns[i].length !== 2) {
+        throw new AqlError('Expected definitions[' + i + '] to be a tuple');
+      }
+      this.dfns.push([new Identifier(dfns[i][0]), autoCastToken(dfns[i][1])]);
+    }
+  } else {
+    for (var key in dfns) {
+      if (dfns.hasOwnProperty(key)) {
+        this.dfns.push([new Identifier(key), autoCastToken(dfns[key])]);
+      }
+    }
+  }
+  if (this.dfns.length === 0) {
+    throw new AqlError('Expected definitions not to be empty');
+  }
+}
+Definitions.prototype.toAQL = function () {
+  var dfns = [];
+  for (var i = 0; i < this.dfns.length; i++) {
+    dfns.push(this.dfns[i][0].toAQL() + ' = ' + wrapAQL(this.dfns[i][1]));
+  }
+  return dfns.join(', ');
+};
+
 function ForExpression(prev, varname, expr) {
   this.prev = prev;
   this.varname = new Identifier(varname);
@@ -423,36 +457,20 @@ FilterExpression.prototype.toAQL = function () {
 
 function LetExpression(prev, dfns) {
   this.prev = prev;
-  this.dfns = new ObjectLiteral(dfns);
-  for (var key in dfns) {
-    if (dfns.hasOwnProperty(key) && !Identifier.re.exec(key)) {
-      throw new AqlError('Expected key to be a valid identifier: ' + key);
-    }
-  }
+  this.dfns = new Definitions(dfns);
 }
 LetExpression.prototype = new PartialStatement();
 LetExpression.prototype.constructor = LetExpression;
 LetExpression.prototype.toAQL = function () {
-  var dfns = [];
-  for (var key in this.dfns) {
-    if (this.dfns.hasOwnProperty(key)) {
-      dfns.push(key + ' = ' + wrapAQL(this.dfns[key]));
-    }
-  }
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'LET ' + dfns.join(', ')
+    'LET ' + this.dfns.toAQL()
   );
 };
 
 function CollectExpression(prev, dfns) {
   this.prev = prev;
-  this.dfns = new ObjectLiteral(dfns);
-  for (var key in dfns) {
-    if (dfns.hasOwnProperty(key) && !Identifier.re.exec(key)) {
-      throw new AqlError('Expected key to be a valid identifier: ' + key);
-    }
-  }
+  this.dfns = new Definitions(dfns);
 }
 CollectExpression.prototype = new PartialStatement();
 CollectExpression.prototype.constructor = CollectExpression;
@@ -460,40 +478,23 @@ CollectExpression.prototype.into = function (varname) {
   return new CollectIntoExpression(this.prev, this.dfns, varname);
 };
 CollectExpression.prototype.toAQL = function () {
-  var dfns = [];
-  for (var key in this.dfns) {
-    if (this.dfns.hasOwnProperty(key)) {
-      dfns.push(key + ' = ' + wrapAQL(this.dfns[key]));
-    }
-  }
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'COLLECT ' + dfns.join(', ')
+    'COLLECT ' + this.dfns.toAQL()
   );
 };
 
 function CollectIntoExpression(prev, dfns, varname) {
   this.prev = prev;
-  this.dfns = new ObjectLiteral(dfns);
-  for (var key in dfns) {
-    if (dfns.hasOwnProperty(key) && !Identifier.re.exec(key)) {
-      throw new AqlError('Expected key to be a valid identifier: ' + key);
-    }
-  }
+  this.dfns = new Definitions(dfns);
   this.varname = new Identifier(varname);
 }
 CollectIntoExpression.prototype = new PartialStatement();
 CollectIntoExpression.prototype.constructor = CollectIntoExpression;
 CollectIntoExpression.prototype.toAQL = function () {
-  var dfns = [];
-  for (var key in this.dfns) {
-    if (this.dfns.hasOwnProperty(key)) {
-      dfns.push(key + ' = ' + wrapAQL(this.dfns[key]));
-    }
-  }
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'COLLECT ' + dfns.join(', ') +
+    'COLLECT ' + this.dfns.toAQL() +
     ' INTO ' + this.varname
   );
 };
@@ -756,6 +757,7 @@ exports._Expression = Expression;
 exports._Operation = Operation;
 exports._Statement = Statement;
 exports._PartialStatement = PartialStatement;
+exports._Definitions = Definitions;
 exports._CollectIntoExpression = CollectIntoExpression;
 exports._RemoveExpressionWithOptions = RemoveExpressionWithOptions;
 exports._InsertExpressionWithOptions = InsertExpressionWithOptions;
