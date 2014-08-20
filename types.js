@@ -368,41 +368,41 @@ PartialStatement.prototype.limit = function (x, y) {return new LimitExpression(t
 PartialStatement.prototype.return_ = function (x) {return new ReturnExpression(this, x);};
 PartialStatement.prototype.remove = function (expr) {
   var self = this, inFn;
-  inFn = function (collection, opts) {
-    return new RemoveExpression(self, expr, collection, opts);
+  inFn = function (collection) {
+    return new RemoveExpression(self, expr, collection);
   };
   return {into: inFn, 'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.insert = function (expr) {
   var self = this, inFn;
-  inFn = function (collection, opts) {
-    return new InsertExpression(self, expr, collection, opts);
+  inFn = function (collection) {
+    return new InsertExpression(self, expr, collection);
   };
   return {into: inFn, 'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.update = function (expr) {
   var self = this, withFn, inFn;
   withFn = function (withExpr) {
-    var inFn = function (collection, opts) {
-      return new UpdateExpression(self, expr, withExpr, collection, opts);
+    var inFn = function (collection) {
+      return new UpdateExpression(self, expr, withExpr, collection);
     };
     return {into: inFn, 'in': inFn, in_: inFn};
   };
-  inFn = function (collection, opts) {
-    return new ReplaceExpression(self, expr, undefined, collection, opts);
+  inFn = function (collection) {
+    return new ReplaceExpression(self, expr, undefined, collection);
   };
   return {'with': withFn, with_: withFn, into: inFn, 'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.replace = function (expr) {
   var self = this, withFn, inFn;
   withFn = function (withExpr) {
-    var inFn = function (collection, opts) {
-      return new ReplaceExpression(self, expr, withExpr, collection, opts);
+    var inFn = function (collection) {
+      return new ReplaceExpression(self, expr, withExpr, collection);
     };
     return {into: inFn, 'in': inFn, in_: inFn};
   };
-  inFn = function (collection, opts) {
-    return new ReplaceExpression(self, expr, undefined, collection, opts);
+  inFn = function (collection) {
+    return new ReplaceExpression(self, expr, undefined, collection);
   };
   return {'with': withFn, with_: withFn, into: inFn, 'in': inFn, in_: inFn};
 };

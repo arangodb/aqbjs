@@ -1,12 +1,13 @@
 {
   "name": "aqb",
   "license": "APACHE2_0",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "ArangoDB AQL query builder.",
   "keywords": [
     "arangodb",
     "aql",
-    "nosql"
+    "nosql",
+    "query"
   ],
   "author": {
     "name": "Alan Plum",

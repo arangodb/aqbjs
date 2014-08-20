@@ -66,6 +66,7 @@ QB.lt = function (x, y) {return new types.BinaryOperation('<', x, y);};
 QB.lte = function (x, y) {return new types.BinaryOperation('<=', x, y);};
 QB.neq = function (x, y) {return new types.BinaryOperation('!=', x, y);};
 QB.not = function (x) {return new types.UnaryOperation('!', x);};
+QB.neg = function (x) {return new types.UnaryOperation('-', x);};
 QB.in_ = function (x, y) {return new types.BinaryOperation('in', x, y);};
 QB.if_ = function (x, y, z) {return new types.TernaryOperation('?', ':', x, y, z);};
 
