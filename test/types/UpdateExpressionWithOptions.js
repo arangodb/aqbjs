@@ -47,6 +47,9 @@ describe('UpdateExpressionWithOptions', function () {
     ps.toAQL = function () {return 'x';};
     expect(new UpdateExpressionWithOptions(null, ps, 'y', 'z', 'a').toAQL()).to.equal('UPDATE (x) WITH y IN z OPTIONS a');
   });
+  it('allows omitting with-expressions', function () {
+    expect(new UpdateExpressionWithOptions(null, 'x', undefined, 'z', 'a').toAQL()).to.equal('UPDATE x IN z OPTIONS a');
+  });
   it('auto-casts with-expressions', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
     var ctors = [

@@ -47,6 +47,9 @@ describe('UpdateExpression', function () {
     ps.toAQL = function () {return 'x';};
     expect(new UpdateExpression(null, ps, 'y', 'z').toAQL()).to.equal('UPDATE (x) WITH y IN z');
   });
+  it('allows omitting with-expressions', function () {
+    expect(new UpdateExpression(null, 'x', undefined, 'z').toAQL()).to.equal('UPDATE x IN z');
+  });
   it('auto-casts with-expressions', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
     var ctors = [

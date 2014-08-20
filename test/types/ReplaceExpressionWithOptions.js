@@ -47,6 +47,9 @@ describe('ReplaceExpressionWithOptions', function () {
     ps.toAQL = function () {return 'x';};
     expect(new ReplaceExpressionWithOptions(null, ps, 'y', 'z', 'a').toAQL()).to.equal('REPLACE (x) WITH y IN z OPTIONS a');
   });
+  it('allows omitting with-expressions', function () {
+    expect(new ReplaceExpressionWithOptions(null, 'x', undefined, 'z', 'a').toAQL()).to.equal('REPLACE x IN z OPTIONS a');
+  });
   it('auto-casts with-expressions', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
     var ctors = [

@@ -47,6 +47,9 @@ describe('ReplaceExpression', function () {
     ps.toAQL = function () {return 'x';};
     expect(new ReplaceExpression(null, ps, 'y', 'z').toAQL()).to.equal('REPLACE (x) WITH y IN z');
   });
+  it('allows omitting with-expressions', function () {
+    expect(new ReplaceExpression(null, 'x', undefined, 'z').toAQL()).to.equal('REPLACE x IN z');
+  });
   it('auto-casts with-expressions', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
     var ctors = [

@@ -348,15 +348,23 @@ PartialStatement.prototype.for_ = function (varname) {
   return {'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.filter = function (expr) {return new FilterExpression(this, expr);};
-PartialStatement.prototype.let_ = function (varname, expr) {return new LetExpression(this, varname, expr);};
-PartialStatement.prototype.collect = function (dfns) {
-    return new CollectExpression(this, dfns);
+PartialStatement.prototype.let_ = function (varname, expr) {
+  if (expr === undefined) {
+    return new LetExpression(this, varname);
+  }
+  return new LetExpression(this, [[varname, expr]]);
+};
+PartialStatement.prototype.collect = function (varname, expr) {
+  if (expr === undefined) {
+    return new CollectExpression(this, varname);
+  }
+  return new CollectExpression(this, [[varname, expr]]);
 };
 PartialStatement.prototype.sort = function () {
   var args = Array.prototype.slice.call(arguments);
   return new SortExpression(this, args);
 };
-PartialStatement.prototype.limit = function (x, y) {return new LimitExpression(x, y);};
+PartialStatement.prototype.limit = function (x, y) {return new LimitExpression(this, x, y);};
 PartialStatement.prototype.return_ = function (x) {return new ReturnExpression(this, x);};
 PartialStatement.prototype.remove = function (expr) {
   var self = this, inFn;
@@ -373,24 +381,30 @@ PartialStatement.prototype.insert = function (expr) {
   return {into: inFn, 'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.update = function (expr) {
-  var self = this, withFn;
+  var self = this, withFn, inFn;
   withFn = function (withExpr) {
     var inFn = function (collection, opts) {
       return new UpdateExpression(self, expr, withExpr, collection, opts);
     };
     return {into: inFn, 'in': inFn, in_: inFn};
   };
-  return {'with': withFn, with_: withFn};
+  inFn = function (collection, opts) {
+    return new ReplaceExpression(self, expr, undefined, collection, opts);
+  };
+  return {'with': withFn, with_: withFn, into: inFn, 'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.replace = function (expr) {
-  var self = this, withFn;
+  var self = this, withFn, inFn;
   withFn = function (withExpr) {
     var inFn = function (collection, opts) {
       return new ReplaceExpression(self, expr, withExpr, collection, opts);
     };
     return {into: inFn, 'in': inFn, in_: inFn};
   };
-  return {'with': withFn, with_: withFn};
+  inFn = function (collection, opts) {
+    return new ReplaceExpression(self, expr, undefined, collection, opts);
+  };
+  return {'with': withFn, with_: withFn, into: inFn, 'in': inFn, in_: inFn};
 };
 
 PartialStatement.prototype['for'] = PartialStatement.prototype.for_;
@@ -556,7 +570,7 @@ function LimitExpression(prev, offset, count) {
     offset = undefined;
   }
   this.prev = prev;
-  this.offset = offset === undefined ? null : autoCastToken(offset);
+  this.offset = offset === undefined ? undefined : autoCastToken(offset);
   this.count = autoCastToken(count);
 }
 LimitExpression.prototype = new PartialStatement();
@@ -662,7 +676,7 @@ InsertExpressionWithOptions.prototype.toAQL = function () {
 function UpdateExpression(prev, expr, withExpr, collection) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
-  this.withExpr = autoCastToken(withExpr);
+  this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
   this.collection = new Identifier(collection);
 }
 UpdateExpression.prototype = new Statement();
@@ -674,7 +688,7 @@ UpdateExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'UPDATE ' + wrapAQL(this.expr) +
-    ' WITH ' + wrapAQL(this.withExpr) +
+    (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
     ' IN ' + wrapAQL(this.collection)
   );
 };
@@ -682,7 +696,7 @@ UpdateExpression.prototype.toAQL = function () {
 function UpdateExpressionWithOptions(prev, expr, withExpr, collection, opts) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
-  this.withExpr = autoCastToken(withExpr);
+  this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
   this.collection = new Identifier(collection);
   this.opts = autoCastToken(opts);
 }
@@ -692,7 +706,7 @@ UpdateExpressionWithOptions.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'UPDATE ' + wrapAQL(this.expr) +
-    ' WITH ' + wrapAQL(this.withExpr) +
+    (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
     ' IN ' + wrapAQL(this.collection) +
     ' OPTIONS ' + wrapAQL(this.opts)
   );
@@ -701,7 +715,7 @@ UpdateExpressionWithOptions.prototype.toAQL = function () {
 function ReplaceExpression(prev, expr, withExpr, collection) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
-  this.withExpr = autoCastToken(withExpr);
+  this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
   this.collection = new Identifier(collection);
 }
 ReplaceExpression.prototype = new Statement();
@@ -713,7 +727,7 @@ ReplaceExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'REPLACE ' + wrapAQL(this.expr) +
-    ' WITH ' + wrapAQL(this.withExpr) +
+    (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
     ' IN ' + wrapAQL(this.collection)
   );
 };
@@ -721,7 +735,7 @@ ReplaceExpression.prototype.toAQL = function () {
 function ReplaceExpressionWithOptions(prev, expr, withExpr, collection, opts) {
   this.prev = prev;
   this.expr = autoCastToken(expr);
-  this.withExpr = autoCastToken(withExpr);
+  this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
   this.collection = new Identifier(collection);
   this.opts = autoCastToken(opts);
 }
@@ -731,7 +745,7 @@ ReplaceExpressionWithOptions.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'REPLACE ' + wrapAQL(this.expr) +
-    ' WITH ' + wrapAQL(this.withExpr) +
+    (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
     ' IN ' + wrapAQL(this.collection) +
     ' OPTIONS ' + wrapAQL(this.opts)
   );
