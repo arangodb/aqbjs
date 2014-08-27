@@ -2,6 +2,13 @@
 
 The query builder allows constructing complex AQL queries with a pure JavaScript fluid API.
 
+```js
+// in arangosh
+var db = require('org/arangodb').db;
+var qb = require('aqb');
+console.log(db.query(qb.for('x').in('1..5').return('x').toAQL()).toArray()); // [1, 2, 3, 4, 5]
+```
+
 ## API
 
 ### AQL Types
