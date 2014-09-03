@@ -309,6 +309,26 @@ TernaryOperation.prototype.toAQL = function () {
   ].join(' ');
 };
 
+function NAryOperation(operator, values) {
+  if (!operator || typeof operator !== 'string') {
+    throw new AqlError('Expected operator to be a string: ' + operator);
+  }
+  this.operator = operator;
+  this.values = [];
+  for (var i = 0; i < values.length; i++) {
+    this.values.push(autoCastToken(values[i]));
+  }
+}
+NAryOperation.prototype = new Operation();
+NAryOperation.prototype.constructor = NAryOperation;
+NAryOperation.prototype.toAQL = function () {
+  var values = [], i;
+  for (i = 0; i < this.values.length; i++) {
+    values.push(wrapAQL(this.values[i]));
+  }
+  return values.join(' ' + this.operator + ' ');
+};
+
 function FunctionCall(functionName, args) {
   if (!functionName || typeof functionName !== 'string') {
     throw new AqlError('Expected function name to be a string: ' + functionName);
@@ -768,6 +788,7 @@ exports.SimpleReference = SimpleReference;
 exports.UnaryOperation = UnaryOperation;
 exports.BinaryOperation = BinaryOperation;
 exports.TernaryOperation = TernaryOperation;
+exports.NAryOperation = NAryOperation;
 exports.FunctionCall = FunctionCall;
 exports.ForExpression = ForExpression;
 exports.FilterExpression = FilterExpression;

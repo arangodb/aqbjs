@@ -156,6 +156,12 @@ Creates an "and" operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+This function can take any number of arguments.
+
+*Examples*
+
+`qb.and(a, b, c, d, e, f)` -> `(a && b && c && d && e && f)`
+
 #### Boolean Or
 
 Creates an "or" operation from the given values.
@@ -163,6 +169,12 @@ Creates an "or" operation from the given values.
 `qb.or(a, b)` -> `(a || b)`
 
 If the values are not already AQL values, they will be converted automatically.
+
+This function can take any number of arguments.
+
+*Examples*
+
+`qb.or(a, b, c, d, e, f)` -> `(a || b || c || d || e || f)`
 
 #### Addition
 
@@ -172,7 +184,13 @@ Creates an addition operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+This function can take any number of arguments.
+
 *Aliases:* `qb.plus(a, b)`
+
+*Examples*
+
+`qb.add(a, b, c, d, e, f)` -> `(a + b + c + d + e + f)`
 
 #### Subtraction
 
@@ -182,7 +200,13 @@ Creates a subtraction operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+This function can take any number of arguments.
+
 *Aliases:* `qb.minus(a, b)`
+
+*Examples*
+
+`qb.sub(a, b, c, d, e, f)` -> `(a - b - c - d - e - f)`
 
 #### Multiplication
 
@@ -192,7 +216,13 @@ Creates a multiplication operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+This function can take any number of arguments.
+
 *Aliases:* `qb.times(a, b)`
+
+*Examples*
+
+`qb.mul(a, b, c, d, e, f)` -> `(a * b * c * d * e * f)`
 
 #### Division
 
@@ -202,6 +232,12 @@ Creates a division operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+This function can take any number of arguments.
+
+*Examples*
+
+`qb.div(a, b, c, d, e, f)` -> `(a / b / c / d / e / f)`
+
 #### Modulus
 
 Creates a modulus operation from the given values.
@@ -209,6 +245,12 @@ Creates a modulus operation from the given values.
 `qb.mod(a, b)` -> `(a % b)`
 
 If the values are not already AQL values, they will be converted automatically.
+
+This function can take any number of arguments.
+
+*Examples*
+
+`qb.mod(a, b, c, d, e, f)` -> `(a % b % c % d % e % f)`
 
 #### Equality
 

@@ -6,7 +6,9 @@ var AqlError = require('./errors').AqlError,
   types = require('./types'),
   QB = {},
   bind,
+  toArray,
   warn;
+
 
 bind = (typeof Function.prototype.bind === 'function' ? (
   Function.prototype.call.bind(Function.prototype.bind)
@@ -17,6 +19,8 @@ bind = (typeof Function.prototype.bind === 'function' ? (
     };
   }
 ));
+
+toArray = bind(Function.prototype.call, Array.prototype.slice);
 
 warn = (function () {
   if (typeof console !== 'undefined') {
@@ -52,13 +56,13 @@ QB.ref = function (value) {
 };
 QB.expr = function (value) {return new types.RawExpression(value);};
 
-QB.and = function (x, y) {return new types.BinaryOperation('&&', x, y);};
-QB.or = function (x, y) {return new types.BinaryOperation('||', x, y);};
-QB.add = function (x, y) {return new types.BinaryOperation('+', x, y);};
-QB.sub = function (x, y) {return new types.BinaryOperation('-', x, y);};
-QB.mul = function (x, y) {return new types.BinaryOperation('*', x, y);};
-QB.div = function (x, y) {return new types.BinaryOperation('/', x, y);};
-QB.mod = function (x, y) {return new types.BinaryOperation('%', x, y);};
+QB.and = function (/* x, y... */) {return new types.NAryOperation('&&', toArray(arguments));};
+QB.or = function (/* x, y... */) {return new types.NAryOperation('||', toArray(arguments));};
+QB.add = function (/* x, y... */) {return new types.NAryOperation('+', toArray(arguments));};
+QB.sub = function (/* x, y... */) {return new types.NAryOperation('-', toArray(arguments));};
+QB.mul = function (/* x, y... */) {return new types.NAryOperation('*', toArray(arguments));};
+QB.div = function (/* x, y... */) {return new types.NAryOperation('/', toArray(arguments));};
+QB.mod = function (/* x, y... */) {return new types.NAryOperation('%', toArray(arguments));};
 QB.eq = function (x, y) {return new types.BinaryOperation('==', x, y);};
 QB.gt = function (x, y) {return new types.BinaryOperation('>', x, y);};
 QB.gte = function (x, y) {return new types.BinaryOperation('>=', x, y);};
