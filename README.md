@@ -186,7 +186,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Aliases:* `qb.plus(a, b)`
+*Alias:* `qb.plus(a, b)`
 
 *Examples*
 
@@ -202,7 +202,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Aliases:* `qb.minus(a, b)`
+*Alias:* `qb.minus(a, b)`
 
 *Examples*
 
@@ -218,7 +218,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Aliases:* `qb.times(a, b)`
+*Alias:* `qb.times(a, b)`
 
 *Examples*
 
