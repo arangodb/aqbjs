@@ -172,6 +172,8 @@ Creates an addition operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+*Aliases:* `qb.plus(a, b)`
+
 #### Subtraction
 
 Creates a subtraction operation from the given values.
@@ -180,6 +182,8 @@ Creates a subtraction operation from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
+*Aliases:* `qb.minus(a, b)`
+
 #### Multiplication
 
 Creates a multiplication operation from the given values.
@@ -187,6 +191,8 @@ Creates a multiplication operation from the given values.
 `qb.mul(a, b)` -> `(a * b)`
 
 If the values are not already AQL values, they will be converted automatically.
+
+*Aliases:* `qb.times(a, b)`
 
 #### Division
 
