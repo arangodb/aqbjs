@@ -51,7 +51,7 @@ If the value does not represent a finite integer, an *AQLError* will be thrown.
 
 If the value is already an AQL Number or AQL Integer, its own value will be wrapped instead.
 
-*Alias:* `qb._int(value)`
+*Alias:* `qb.int_(value)`
 
 #### String
 
@@ -260,7 +260,7 @@ Creates an "in" comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-*Aliases:* `qb._in(a, b)`
+*Aliases:* `qb.in_(a, b)`
 
 #### Negation
 
@@ -286,7 +286,7 @@ Creates a ternary expression from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-*Aliases:* `qb._if(condition, then, otherwise)`
+*Aliases:* `qb.if_(condition, then, otherwise)`
 
 #### Function Call
 
@@ -322,19 +322,19 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::for(expression).in(collection) : Statement`
 
-*Alias:* `_for(expression)._in(collection)`
+*Alias:* `for_(expression).in_(collection)`
 
 #### LET varname = expression
 
 `PartialStatement::let(varname, expression) : Statement`
 
-*Alias:* `_let(varname, expression)`
+*Alias:* `let_(varname, expression)`
 
 #### LET var1 = expr1, var2 = expr2, …, varn = exprn
 
 `PartialStatement::let(definitions) : Statement`
 
-*Alias:* `_let(definitions)`
+*Alias:* `let_(definitions)`
 
 #### FILTER expression
 
@@ -368,7 +368,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::return(expression) : Statement`
 
-*Alias:* `_return(expression)`
+*Alias:* `return_(expression)`
 
 #### REMOVE expression IN collection
 
@@ -376,7 +376,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 *Aliases:*
 
-* `remove(expression)._in(collection)`
+* `remove(expression).in_(collection)`
 * `remove(expression).into(collection)`
 
 #### REMOVE … OPTIONS options
@@ -390,7 +390,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 *Aliases:*
 
 * `insert(expression).in(collection)`
-* `insert(expression)._in(collection)`
+* `insert(expression).in_(collection)`
 
 #### INSERT … OPTIONS options
 
@@ -402,11 +402,11 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 *Aliases:*
 
-* `update(expression1).with(expression2)._in(collection)`
+* `update(expression1).with(expression2).in_(collection)`
 * `update(expression1).with(expression2).into(collection)`
-* `update(expression1)._with(expression2).in(collection)`
-* `update(expression1)._with(expression2)._in(collection)`
-* `update(expression1)._with(expression2).into(collection)`
+* `update(expression1).with_(expression2).in(collection)`
+* `update(expression1).with_(expression2).in_(collection)`
+* `update(expression1).with_(expression2).into(collection)`
 
 #### UPDATE expression IN collection
 
@@ -414,7 +414,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 *Aliases:*
 
-* `update(expression)._in(collection)`
+* `update(expression).in_(collection)`
 * `update(expression).into(collection)`
 
 #### UPDATE … OPTIONS options
@@ -427,11 +427,11 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 *Aliases:*
 
-* `replace(expression1).with(expression2)._in(collection)`
+* `replace(expression1).with(expression2).in_(collection)`
 * `replace(expression1).with(expression2).into(collection)`
-* `replace(expression1)._with(expression2).in(collection)`
-* `replace(expression1)._with(expression2)._in(collection)`
-* `replace(expression1)._with(expression2).into(collection)`
+* `replace(expression1).with_(expression2).in(collection)`
+* `replace(expression1).with_(expression2).in_(collection)`
+* `replace(expression1).with_(expression2).into(collection)`
 
 #### REPLACE expression IN collection
 
@@ -439,7 +439,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 *Aliases:*
 
-* `replace(expression)._in(collection)`
+* `replace(expression).in_(collection)`
 * `replace(expression).into(collection)`
 
 #### REPLACE … OPTIONS options
