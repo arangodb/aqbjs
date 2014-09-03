@@ -1,7 +1,7 @@
 {
   "name": "aqb",
   "license": "APACHE2_0",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ArangoDB AQL query builder.",
   "keywords": [
     "arangodb",
@@ -17,7 +17,7 @@
   "dependencies": {},
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "mocha": "^1.21.3"
+    "mocha": "^1.21.4"
   },
   "engine": "node >= 0.8.0",
   "bugs": {
