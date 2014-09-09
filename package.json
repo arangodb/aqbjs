@@ -1,7 +1,7 @@
 {
   "name": "aqb",
   "license": "APACHE2_0",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "ArangoDB AQL query builder.",
   "keywords": [
     "arangodb",

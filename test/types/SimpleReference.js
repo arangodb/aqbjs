@@ -36,7 +36,9 @@ describe('SimpleReference', function () {
       'snakeCaseAlso.__cRaZy__',
       'CamelCaseHere.__cRaZy__',
       'ALL_UPPER_CASE.__cRaZy__',
-      '__cRaZy__.__cRaZy__'
+      '__cRaZy__.__cRaZy__',
+      '@chicken',
+      '@@chicken.chicken'
     ];
     for (var i = 0; i < values.length; i++) {
       expect(new SimpleReference(values[i]).toAQL()).to.equal(values[i]);
@@ -48,6 +50,7 @@ describe('SimpleReference', function () {
       '-x',
       'a..b',
       'a.b..c',
+      'b@d',
       'bad.1',
       'bad[1]',
       'in-valid',
