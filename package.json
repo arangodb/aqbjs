@@ -24,7 +24,7 @@
     "url": "https://github.com/arangodb/aqbjs/issues"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --growl -R spec test/**/*.js"
+    "test": "./node_modules/.bin/mocha --growl -R spec test test/**"
   },
   "repository": {
     "type": "git",
