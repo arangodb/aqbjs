@@ -23,7 +23,7 @@ function autoCastToken(token) {
   if (token instanceof Expression || token instanceof PartialStatement) {
     return token;
   }
-  if (typeof token === 'number') {
+  if (typeof token === 'number' && token === token && token !== Infinity && token !== -Infinity) {
     if (Math.floor(token) === token) {
       return new IntegerLiteral(token);
     }
