@@ -49,7 +49,7 @@ function autoCastToken(token) {
     return new SimpleReference(token);
   }
   if (typeof token === 'object') {
-    if (Object.prototype.toString.call(token) === '[object ArangoCollection]') {
+    if (token.constructor && token.constructor.name === 'ArangoCollection') {
       return new Identifier(token.name());
     }
     if (Object.prototype.toString.call(token) === '[object Array]') {
