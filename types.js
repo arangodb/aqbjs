@@ -57,7 +57,7 @@ function autoCastToken(token) {
     }
     return new ObjectLiteral(token);
   }
-  throw new AqlError('Invalid type for an AQL value: ' + (typeof token));
+  throw new AqlError('Invalid AQL value: (' + (typeof token) + ') ' + token);
 }
 
 function Expression() {}
