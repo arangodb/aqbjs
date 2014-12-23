@@ -1,7 +1,7 @@
-/*jshint browserify: true, -W014 */
+/*jshint browserify: true */
 'use strict';
-var AqlError = require('./errors').AqlError,
-  keywords = require('./assumptions').keywords;
+var AqlError = require('./errors').AqlError;
+var keywords = require('./assumptions').keywords;
 
 function wrapAQL(expr) {
   if (
@@ -14,12 +14,11 @@ function wrapAQL(expr) {
   return expr.toAQL();
 }
 
-function isValidNumber(token) {
+function isValidNumber(number) {
   return (
-    typeof token === 'number'
-    && token === token
-    && token !== Infinity
-    && token !== -Infinity
+    number === number &&
+    number !== Infinity &&
+    number !== -Infinity
   );
 }
 
@@ -28,6 +27,10 @@ function castNumber(number) {
     return new IntegerLiteral(number);
   }
   return new NumberLiteral(number);
+}
+
+function castBoolean(bool) {
+  return new BooleanLiteral(bool);
 }
 
 function castString(str) {
@@ -58,27 +61,22 @@ function castObject(obj) {
 }
 
 function autoCastToken(token) {
-  var match;
   if (token === null || token === undefined) {
     return new NullLiteral();
   }
   if (token instanceof Expression || token instanceof PartialStatement) {
     return token;
   }
-  if (isValidNumber(token)) {
-    return castNumber(token);
+  var type = typeof token;
+  if (Object.keys(autoCastToken).indexOf(type) === -1) {
+    throw new AqlError('Invalid AQL value: (' + type + ') ' + token);
   }
-  if (typeof token === 'boolean') {
-    return new BooleanLiteral(token);
-  }
-  if (typeof token === 'string') {
-    return castString(token);
-  }
-  if (typeof token === 'object') {
-    return castObject(token);
-  }
-  throw new AqlError('Invalid AQL value: (' + (typeof token) + ') ' + token);
+  return autoCastToken[type](token);
 }
+autoCastToken.number = castNumber;
+autoCastToken.boolean = castBoolean;
+autoCastToken.string = castString;
+autoCastToken.object = castObject;
 
 function Expression() {}
 function Operation() {}
@@ -118,7 +116,7 @@ function NumberLiteral(value) {
     value instanceof IntegerLiteral
   )) {value = value.value;}
   this.value = Number(value);
-  if (this.value !== this.value || this.value === Infinity) {
+  if (!isValidNumber(this.value)) {
     throw new AqlError('Expected value to be a finite number: ' + value);
   }
 }
@@ -133,7 +131,7 @@ function IntegerLiteral(value) {
     value instanceof IntegerLiteral
   )) {value = value.value;}
   this.value = Number(value);
-  if (this.value !== this.value || this.value === Infinity || Math.floor(this.value) !== this.value) {
+  if (!isValidNumber(this.value) || Math.floor(this.value) !== this.value) {
     throw new AqlError('Expected value to be a finite integer: ' + value);
   }
 }
