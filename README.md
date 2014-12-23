@@ -22,6 +22,16 @@ npm install aqb
 bower install aqb
 ```
 
+## ArangoDB
+
+As of ArangoDB 1.3, a version of `aqb` comes pre-installed with ArangoDB.
+
+```js
+var qb = require('aqb');
+```
+
+If you want to use a more recent version of `aqb` in a Foxx app, you can add it to your NPM dependencies as usual.
+
 ## Browser
 
 This CommonJS module is compatible with [browserify](http://browserify.org).
