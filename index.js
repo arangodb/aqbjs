@@ -5,22 +5,10 @@ var AqlError = require('./errors').AqlError,
   assumptions = require('./assumptions'),
   types = require('./types'),
   QB = {},
-  bind,
   toArray,
   warn;
 
-
-bind = (typeof Function.prototype.bind === 'function' ? (
-  Function.prototype.call.bind(Function.prototype.bind)
-) : (
-  function (fn, self) {
-    return function () {
-      return fn.apply(self, arguments);
-    };
-  }
-));
-
-toArray = bind(Function.prototype.call, Array.prototype.slice);
+toArray = Function.prototype.call.bind(Array.prototype.slice);
 
 warn = (function () {
   if (typeof console !== 'undefined') {
@@ -36,7 +24,7 @@ warn = (function () {
 
 Object.keys(types._PartialStatement.prototype).forEach(function (key) {
   if (key === 'constructor') return;
-  QB[key] = bind(types._PartialStatement.prototype[key], null);
+  QB[key] = types._PartialStatement.prototype[key].bind(null);
 });
 
 QB.bool = function (value) {return new types.BooleanLiteral(value);};

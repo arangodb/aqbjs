@@ -51,7 +51,7 @@ function autoCastToken(token) {
     if (token.constructor && token.constructor.name === 'ArangoCollection') {
       return new Identifier(token.name());
     }
-    if (Object.prototype.toString.call(token) === '[object Array]') {
+    if (Array.isArray(token)) {
       return new ListLiteral(token);
     }
     return new ObjectLiteral(token);
@@ -130,21 +130,15 @@ StringLiteral.prototype.toAQL = function () {return JSON.stringify(this.value);}
 
 function ListLiteral(value) {
   if (value && value instanceof ListLiteral) {value = value.value;}
-  if (!value || Object.prototype.toString.call(value) !== '[object Array]') {
+  if (!value || !Array.isArray(value)) {
     throw new AqlError('Expected value to be an array: ' + value);
   }
-  this.value = [];
-  for (var i = 0; i < value.length; i++) {
-    this.value[i] = autoCastToken(value[i]);
-  }
+  this.value = value.map(autoCastToken);
 }
 ListLiteral.prototype = new Expression();
 ListLiteral.prototype.constructor = ListLiteral;
 ListLiteral.prototype.toAQL = function () {
-  var value = [], i;
-  for (i = 0; i < this.value.length; i++) {
-    value.push(wrapAQL(this.value[i]));
-  }
+  var value = this.value.map(wrapAQL);
   return '[' + value.join(', ') + ']';
 };
 
@@ -154,25 +148,22 @@ function ObjectLiteral(value) {
     throw new AqlError('Expected value to be an object: ' + value);
   }
   this.value = {};
-  for (var key in value) {
-    if (value.hasOwnProperty(key)) {
-      this.value[key] = autoCastToken(value[key]);
-    }
-  }
+  var self = this;
+  Object.keys(value).forEach(function (key) {
+    self.value[key] = autoCastToken(value[key]);
+  });
 }
 ObjectLiteral.prototype = new Expression();
 ObjectLiteral.prototype.constructor = ObjectLiteral;
 ObjectLiteral.prototype.toAQL = function () {
-  var items = [], key;
-  for (key in this.value) {
-    if (this.value.hasOwnProperty(key)) {
-      if (key.match(Identifier.re) || key === String(Number(key))) {
-        items.push(key + ': ' + wrapAQL(this.value[key]));
-      } else {
-        items.push(JSON.stringify(key) + ': ' + wrapAQL(this.value[key]));
-      }
+  var value = this.value;
+  var items = Object.keys(value).map(function (key) {
+    if (key.match(Identifier.re) || key === String(Number(key))) {
+      return key + ': ' + wrapAQL(value[key]);
+    } else {
+      return JSON.stringify(key) + ': ' + wrapAQL(value[key]);
     }
-  }
+  });
   return '{' + items.join(', ') + '}';
 };
 
@@ -248,14 +239,10 @@ SimpleReference.re = /^@{0,2}[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*|\[\*\])*$/i;
 SimpleReference.prototype = new Expression();
 SimpleReference.prototype.constructor = SimpleReference;
 SimpleReference.prototype.toAQL = function () {
-  var value = String(this.value),
-    tokens = value.split('.'),
-    i;
-  for (i = 0; i < tokens.length; i++) {
-    if (keywords.indexOf(tokens[i]) !== -1) {
-      tokens[i] = '`' + tokens[i] + '`';
-    }
-  }
+  var value = String(this.value);
+  var tokens = value.split('.').map(function (token) {
+    return keywords.indexOf(token) === -1 ? token : '`' + token + '`';
+  });
   return tokens.join('.');
 };
 
@@ -316,18 +303,12 @@ function NAryOperation(operator, values) {
     throw new AqlError('Expected operator to be a string: ' + operator);
   }
   this.operator = operator;
-  this.values = [];
-  for (var i = 0; i < values.length; i++) {
-    this.values.push(autoCastToken(values[i]));
-  }
+  this.values = values.map(autoCastToken);
 }
 NAryOperation.prototype = new Operation();
 NAryOperation.prototype.constructor = NAryOperation;
 NAryOperation.prototype.toAQL = function () {
-  var values = [], i;
-  for (i = 0; i < this.values.length; i++) {
-    values.push(wrapAQL(this.values[i]));
-  }
+  var values = this.values.map(wrapAQL);
   return values.join(' ' + this.operator + ' ');
 };
 
@@ -338,25 +319,17 @@ function FunctionCall(functionName, args) {
   if (!functionName.match(FunctionCall.re)) {
     throw new AqlError('Not a valid function name: ' + functionName);
   }
-  if (args && Object.prototype.toString.call(args) !== '[object Array]') {
+  if (args && !Array.isArray(args)) {
     throw new AqlError('Expected arguments to be an array: ' + args);
   }
   this.functionName = functionName;
-  this.args = [];
-  if (args) {
-    for (var i = 0; i < args.length; i++) {
-      this.args[i] = autoCastToken(args[i]);
-    }
-  }
+  this.args = args ? args.map(autoCastToken) : [];
 }
 FunctionCall.re = /^[_a-z][_0-9a-z]*(::[_a-z][_0-9a-z]*)*$/i;
 FunctionCall.prototype = new Expression();
 FunctionCall.prototype.constructor = FunctionCall;
 FunctionCall.prototype.toAQL = function () {
-  var args = [], i;
-  for (i = 0; i < this.args.length; i++) {
-    args.push(wrapAQL(this.args[i]));
-  }
+  var args = this.args.map(wrapAQL);
   return this.functionName + '(' + args.join(', ') + ')';
 };
 
@@ -438,33 +411,30 @@ function Definitions(dfns) {
     dfns = dfns.dfns;
   }
   this.dfns = [];
+  var self = this;
   if (!dfns || typeof dfns !== 'object') {
     throw new AqlError('Expected definitions to be an object');
   }
-  if (Object.prototype.toString.call(dfns) === '[object Array]') {
-    for (var i = 0; i < dfns.length; i++) {
-      if (Object.prototype.toString.call(dfns[i]) !== '[object Array]' || dfns[i].length !== 2) {
+  if (Array.isArray(dfns)) {
+    dfns.forEach(function (dfn, i) {
+      if (!Array.isArray(dfn) || dfn.length !== 2) {
         throw new AqlError('Expected definitions[' + i + '] to be a tuple');
       }
-      this.dfns.push([new Identifier(dfns[i][0]), autoCastToken(dfns[i][1])]);
-    }
+      self.dfns.push([new Identifier(dfn[0]), autoCastToken(dfn[1])]);
+    });
   } else {
-    for (var key in dfns) {
-      if (dfns.hasOwnProperty(key)) {
-        this.dfns.push([new Identifier(key), autoCastToken(dfns[key])]);
-      }
-    }
+    Object.keys(dfns).forEach(function (key) {
+      self.dfns.push([new Identifier(key), autoCastToken(dfns[key])]);
+    });
   }
   if (this.dfns.length === 0) {
     throw new AqlError('Expected definitions not to be empty');
   }
 }
 Definitions.prototype.toAQL = function () {
-  var dfns = [];
-  for (var i = 0; i < this.dfns.length; i++) {
-    dfns.push(this.dfns[i][0].toAQL() + ' = ' + wrapAQL(this.dfns[i][1]));
-  }
-  return dfns.join(', ');
+  return this.dfns.map(function (dfn) {
+    return dfn[0].toAQL() + ' = ' + wrapAQL(dfn[1]);
+  }).join(', ');
 };
 
 function ForExpression(prev, varname, expr) {
@@ -540,7 +510,7 @@ CollectIntoExpression.prototype.toAQL = function () {
 };
 
 function SortExpression(prev, args) {
-  if (!args || Object.prototype.toString.call(args) !== '[object Array]') {
+  if (!args || !Array.isArray(args)) {
     throw new AqlError('Expected sort list to be an array: ' + args);
   }
   if (!args.length) {
@@ -548,37 +518,36 @@ function SortExpression(prev, args) {
   }
   this.prev = prev;
   this.args = [];
-  var allowKeyword = false, i, value;
-  for (i = 0; i < args.length; i++) {
-    value = args[i];
-    if (!allowKeyword && value) {
-      if (value instanceof Keyword || (
-        typeof value === 'string' && SortExpression.keywords.indexOf(value.toUpperCase()) !== -1
+  var allowKeyword = false;
+  this.args = args.map(function (arg, i) {
+    if (!allowKeyword && arg) {
+      if (arg instanceof Keyword || (
+        typeof arg === 'string' && SortExpression.keywords.indexOf(arg.toUpperCase()) !== -1
       )) {
-        throw new AqlError('Unexpected keyword ' + value.toString() + ' at offset ' + i);
+        throw new AqlError('Unexpected keyword ' + arg.toString() + ' at offset ' + i);
       }
     }
-    if (typeof value === 'string' && SortExpression.keywords.indexOf(value.toUpperCase()) !== -1) {
-      this.args[i] = new Keyword(value);
+    if (typeof arg === 'string' && SortExpression.keywords.indexOf(arg.toUpperCase()) !== -1) {
       allowKeyword = false;
+      return new Keyword(arg);
     } else {
-      this.args[i] = autoCastToken(value);
       allowKeyword = true;
+      return autoCastToken(arg);
     }
-  }
+  });
 }
 SortExpression.keywords = ['ASC', 'DESC'];
 SortExpression.prototype = new PartialStatement();
 SortExpression.prototype.constructor = SortExpression;
 SortExpression.prototype.toAQL = function () {
   var args = [], j = 0;
-  for (var i = 0; i < this.args.length; i++) {
-    if (this.args[i] instanceof Keyword) {
-      args[j] += ' ' + this.args[i].toAQL();
+  this.args.forEach(function (arg, i) {
+    if (arg instanceof Keyword) {
+      args[j] += ' ' + arg.toAQL();
     } else {
-      j = args.push(wrapAQL(this.args[i])) - 1;
+      j = args.push(wrapAQL(arg)) - 1;
     }
-  }
+  });
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'SORT ' +
