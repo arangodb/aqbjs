@@ -1,0 +1,16 @@
+{
+  "name": "aqb",
+  "homepage": "https://github.com/arangodb/aqbjs",
+  "description": "ArangoDB AQL query builder.",
+  "license": "APACHE-2.0",
+  "ignore": [
+    "**",
+    "!/dist/**",
+    "!/bower.json",
+    "!/README*",
+    "!/LICENSE*"
+  ],
+  "main": [
+    "./dist/aqb.js"
+  ]
+}

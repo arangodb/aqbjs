@@ -9,6 +9,37 @@ var qb = require('aqb');
 console.log(db._query(qb.for('x').in('1..5').return('x')).toArray()); // [1, 2, 3, 4, 5]
 ```
 
+# Install
+
+## With NPM
+
+```sh
+npm install aqb
+```
+
+## With Bower
+
+```sh
+bower install aqb
+```
+
+## Browser
+
+This CommonJS module is compatible with [browserify](http://browserify.org).
+
+If you don't want to use browserify, you can simply use the AMD-compatible [browserify bundle](https://raw.githubusercontent.com/arangodb/aqbjs/master/dist/aqb.min.js) (~30 kB minified, ~6 kB gzipped).
+
+If you want to use this module in non-ES5 browsers like Microsoft Internet Explorer 8 and earlier, you may need to include [es5-shim](https://www.npmjs.com/package/es5-shim) or a similar ES5 polyfill.
+
+## From source
+
+```sh
+git clone https://github.com/arangodb/aqbjs.git
+cd aqbjs
+npm install
+npm run dist
+```
+
 ## API
 
 ### AQL Types

@@ -20,6 +20,9 @@
     "test-only": "mocha -t 30000 --growl -R spec test test/**",
     "cover": "npm run lint && istanbul cover --report lcov _mocha -- -t 30000 -R spec",
     "coveralls": "npm run cover && cat ./coverage/lcov.info | coveralls ; rm -rf ./coverage",
+    "dist": "npm run bundle && npm run minify",
+    "bundle": "browserify -t dekeywordify -u console -s aqb ./index.js > dist/aqb.js",
+    "minify": "uglifyjs dist/aqb.js > dist/aqb.min.js",
     "lint": "jshint index.js *.js test test/**",
     "prepublish": "npm run lint"
   },
@@ -34,10 +37,13 @@
   },
   "homepage": "https://github.com/arangodb/aqbjs",
   "devDependencies": {
+    "dekeywordify": "^0.2.1",
     "expect.js": "^0.3.1",
     "istanbul": "^0.3.5",
     "coveralls": "^2.11.2",
-    "mocha": "^1.21.4"
+    "mocha": "^2.1.0",
+    "browserify": "^7.0.2",
+    "uglify-js": "^2.4.15"
   },
   "dependencies": {}
 }
