@@ -48,15 +48,15 @@ var qb = require('aqb');
 console.log(db._query(qb.for('x').in('1..5').return('x')).toArray()); // [1, 2, 3, 4, 5]
 ```
 
-## API
+# API
 
-### AQL Types
+## AQL Types
 
 If raw JavaScript values are passed to AQL statements, they will be wrapped in a matching AQL type automatically.
 
 JavaScript strings wrapped in quotation marks will be wrapped in AQL strings, all other JavaScript strings will be wrapped as simple references (see below) and throw an *AQLError* if they are not well-formed.
 
-#### Boolean
+### Boolean
 
 Wraps the given value as an AQL Boolean literal.
 
@@ -66,7 +66,7 @@ If the value is truthy, it will be converted to the AQL Boolean *true*, otherwis
 
 If the value is already an AQL Boolean, its own value will be wrapped instead.
 
-#### Number
+### Number
 
 Wraps the given value as an AQL Number literal.
 
@@ -78,7 +78,7 @@ If the value does not represent a finite number, an *AQLError* will be thrown.
 
 If the value is already an AQL Number or AQL Integer, its own value will be wrapped instead.
 
-#### Integer
+### Integer
 
 Wraps the given value as an AQL Integer literal.
 
@@ -92,7 +92,7 @@ If the value is already an AQL Number or AQL Integer, its own value will be wrap
 
 *Alias:* `qb.int_(value)`
 
-#### String
+### String
 
 Wraps the given value as an AQL String literal.
 
@@ -104,7 +104,7 @@ If the value is already an AQL String, its own value will be wrapped instead.
 
 If the value is an object with a *toAQL* method, the result of calling that method will be wrapped instead.
 
-#### List
+### List
 
 Wraps the given value as an AQL List (Array) literal.
 
@@ -116,7 +116,7 @@ If the value is already an AQL List, its own value will be wrapped instead.
 
 Any list elements that are not already AQL values will be converted automatically.
 
-#### Object
+### Object
 
 Wraps the given value as an AQL Object literal.
 
@@ -128,7 +128,7 @@ If the value is already an AQL List, its own value will be wrapped instead.
 
 Any property values that are not already AQL values will be converted automatically.
 
-#### Simple Reference
+### Simple Reference
 
 Wraps a given value in an AQL Simple Reference.
 
@@ -166,9 +166,9 @@ var myUserCollection = applicationContext.collection('users');
 var users = db._query(qb.for('u').in(myUserCollection).return('u')).toArray();
 ```
 
-### AQL Expressions
+## AQL Expressions
 
-#### Range
+### Range
 
 Creates a range expression from the given values.
 
@@ -176,7 +176,7 @@ Creates a range expression from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Property Access
+### Property Access
 
 Creates a property access expression from the given values.
 
@@ -184,7 +184,7 @@ Creates a property access expression from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Raw Expression
+### Raw Expression
 
 Wraps a given value in a raw AQL expression.
 
@@ -194,9 +194,9 @@ If the value is already an AQL Raw Expression, its value is wrapped instead.
 
 **Warning:** Whenever possible, you should use one of the other methods or a combination thereof instead of using a raw expression. Raw expressions allow passing arbitrary strings into your AQL and thus will open you to AQL injection attacks if you are passing in untrusted user input.
 
-### AQL Operations
+## AQL Operations
 
-#### Boolean And
+### Boolean And
 
 Creates an "and" operation from the given values.
 
@@ -210,7 +210,7 @@ This function can take any number of arguments.
 
 `qb.and(a, b, c, d, e, f)` -> `(a && b && c && d && e && f)`
 
-#### Boolean Or
+### Boolean Or
 
 Creates an "or" operation from the given values.
 
@@ -224,7 +224,7 @@ This function can take any number of arguments.
 
 `qb.or(a, b, c, d, e, f)` -> `(a || b || c || d || e || f)`
 
-#### Addition
+### Addition
 
 Creates an addition operation from the given values.
 
@@ -240,7 +240,7 @@ This function can take any number of arguments.
 
 `qb.add(a, b, c, d, e, f)` -> `(a + b + c + d + e + f)`
 
-#### Subtraction
+### Subtraction
 
 Creates a subtraction operation from the given values.
 
@@ -256,7 +256,7 @@ This function can take any number of arguments.
 
 `qb.sub(a, b, c, d, e, f)` -> `(a - b - c - d - e - f)`
 
-#### Multiplication
+### Multiplication
 
 Creates a multiplication operation from the given values.
 
@@ -272,7 +272,7 @@ This function can take any number of arguments.
 
 `qb.mul(a, b, c, d, e, f)` -> `(a * b * c * d * e * f)`
 
-#### Division
+### Division
 
 Creates a division operation from the given values.
 
@@ -286,7 +286,7 @@ This function can take any number of arguments.
 
 `qb.div(a, b, c, d, e, f)` -> `(a / b / c / d / e / f)`
 
-#### Modulus
+### Modulus
 
 Creates a modulus operation from the given values.
 
@@ -300,7 +300,7 @@ This function can take any number of arguments.
 
 `qb.mod(a, b, c, d, e, f)` -> `(a % b % c % d % e % f)`
 
-#### Equality
+### Equality
 
 Creates an equality comparison from the given values.
 
@@ -308,7 +308,7 @@ Creates an equality comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Inequality
+### Inequality
 
 Creates an inequality comparison from the given values.
 
@@ -316,7 +316,7 @@ Creates an inequality comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Greater Than
+### Greater Than
 
 Creates a greater-than comparison from the given values.
 
@@ -324,7 +324,7 @@ Creates a greater-than comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Greater Than Or Equal To
+### Greater Than Or Equal To
 
 Creates a greater-than-or-equal-to comparison from the given values.
 
@@ -332,7 +332,7 @@ Creates a greater-than-or-equal-to comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Less Than
+### Less Than
 
 Creates a less-than comparison from the given values.
 
@@ -340,7 +340,7 @@ Creates a less-than comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Less Than Or Equal To
+### Less Than Or Equal To
 
 Creates a less-than-or-equal-to comparison from the given values.
 
@@ -348,7 +348,7 @@ Creates a less-than-or-equal-to comparison from the given values.
 
 If the values are not already AQL values, they will be converted automatically.
 
-#### Contains
+### Contains
 
 Creates an "in" comparison from the given values.
 
@@ -358,7 +358,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 *Aliases:* `qb.in_(a, b)`
 
-#### Negation
+### Negation
 
 Creates a negation from the given value.
 
@@ -366,7 +366,7 @@ Creates a negation from the given value.
 
 If the value is not already an AQL value, it will be converted automatically.
 
-#### Negative Value
+### Negative Value
 
 Creates a negative value expression from the given value.
 
@@ -374,7 +374,7 @@ Creates a negative value expression from the given value.
 
 If the value is not already an AQL value, it will be converted automatically.
 
-#### Ternary (if / else)
+### Ternary (if / else)
 
 Creates a ternary expression from the given values.
 
@@ -384,7 +384,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 *Aliases:* `qb.if_(condition, then, otherwise)`
 
-#### Function Call
+### Function Call
 
 Creates a function call for the given name and arguments.
 
@@ -401,7 +401,7 @@ For built-in functions, methods with the relevant function name are already prov
 * `qb.RANDOM()` -> `RANDOM()`
 * `qb.FLOOR(qb.div(5, 2))` -> `FLOOR((5 / 2))`
 
-### AQL Statements
+## AQL Statements
 
 In addition to the methods documented above, the query builder provides all methods of *PartialStatement* objects.
 
@@ -414,59 +414,59 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 // -> FOR doc IN my_collection RETURN doc._key
 ```
 
-#### FOR expression IN collection
+### FOR expression IN collection
 
 `PartialStatement::for(expression).in(collection) : Statement`
 
 *Alias:* `for_(expression).in_(collection)`
 
-#### LET varname = expression
+### LET varname = expression
 
 `PartialStatement::let(varname, expression) : Statement`
 
 *Alias:* `let_(varname, expression)`
 
-#### LET var1 = expr1, var2 = expr2, …, varn = exprn
+### LET var1 = expr1, var2 = expr2, …, varn = exprn
 
 `PartialStatement::let(definitions) : Statement`
 
 *Alias:* `let_(definitions)`
 
-#### FILTER expression
+### FILTER expression
 
 `PartialStatement::filter(expression) : Statement`
 
-#### COLLECT varname = expression
+### COLLECT varname = expression
 
 `PartialStatement::collect(varname, expression) : Statement`
 
-#### COLLECT varname1 = expression INTO varname2
+### COLLECT varname1 = expression INTO varname2
 
 `PartialStatement::collect(varname1, expression).into(varname2) : Statement`
 
-#### COLLECT var1 = expr1, var2 = expr2, …, varn = exprn
+### COLLECT var1 = expr1, var2 = expr2, …, varn = exprn
 
 `PartialStatement::collect(definitions) : Statement`
 
-#### COLLECT var1 = expr1, var2 = expr2, …, varn = exprn INTO varname
+### COLLECT var1 = expr1, var2 = expr2, …, varn = exprn INTO varname
 
 `PartialStatement::collect(definitions).into(varname) : Statement`
 
-#### SORT args…
+### SORT args…
 
 `PartialStatement::sort(args…) : Statement`
 
-#### LIMIT offset, count
+### LIMIT offset, count
 
 `PartialStatement::limit([offset,] count) : Statement`
 
-#### RETURN expression
+### RETURN expression
 
 `PartialStatement::return(expression) : Statement`
 
 *Alias:* `return_(expression)`
 
-#### REMOVE expression IN collection
+### REMOVE expression IN collection
 
 `PartialStatement::remove(expression).in(collection) : RemoveExpression`
 
@@ -475,11 +475,11 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `remove(expression).in_(collection)`
 * `remove(expression).into(collection)`
 
-#### REMOVE … OPTIONS options
+### REMOVE … OPTIONS options
 
 `RemoveExpression::options(options) : Statement`
 
-#### INSERT expression INTO collection
+### INSERT expression INTO collection
 
 `PartialStatement::insert(expression).into(collection) : InsertExpression`
 
@@ -488,11 +488,11 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `insert(expression).in(collection)`
 * `insert(expression).in_(collection)`
 
-#### INSERT … OPTIONS options
+### INSERT … OPTIONS options
 
 `InsertExpression::options(options) : Statement`
 
-#### UPDATE expression1 WITH expression2 IN collection
+### UPDATE expression1 WITH expression2 IN collection
 
 `PartialStatement::update(expression1).with(expression2).in(collection) : UpdateExpression`
 
@@ -504,7 +504,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `update(expression1).with_(expression2).in_(collection)`
 * `update(expression1).with_(expression2).into(collection)`
 
-#### UPDATE expression IN collection
+### UPDATE expression IN collection
 
 `PartialStatement::update(expression).in(collection) : UpdateExpression`
 
@@ -513,11 +513,11 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `update(expression).in_(collection)`
 * `update(expression).into(collection)`
 
-#### UPDATE … OPTIONS options
+### UPDATE … OPTIONS options
 
 `UpdateExpression::options(options) : Statement`
 
-#### REPLACE expression1 WITH expression2 IN collection
+### REPLACE expression1 WITH expression2 IN collection
 
 `PartialStatement::replace(expression1).with(expression2).in(collection) : ReplaceExpression`
 
@@ -529,7 +529,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `replace(expression1).with_(expression2).in_(collection)`
 * `replace(expression1).with_(expression2).into(collection)`
 
-#### REPLACE expression IN collection
+### REPLACE expression IN collection
 
 `PartialStatement::replace(expression).in(collection) : ReplaceExpression`
 
@@ -538,7 +538,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `replace(expression).in_(collection)`
 * `replace(expression).into(collection)`
 
-#### REPLACE … OPTIONS options
+### REPLACE … OPTIONS options
 
 `ReplaceExpression::options(options) : Statement`
 
