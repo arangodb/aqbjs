@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  RangeExpression = types.RangeExpression,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  RangeExpression = types.RangeExpression;
 
 describe('RangeExpression', function () {
   it('returns an expression', function () {

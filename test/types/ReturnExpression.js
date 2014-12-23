@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  ReturnExpression = types.ReturnExpression,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  ReturnExpression = types.ReturnExpression;
 
 describe('ReturnExpression', function () {
   it('returns a statement', function () {

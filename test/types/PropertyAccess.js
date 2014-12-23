@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  PropertyAccess = types.PropertyAccess,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  PropertyAccess = types.PropertyAccess;
 
 describe('PropertyAccess', function () {
   it('returns an expression', function () {

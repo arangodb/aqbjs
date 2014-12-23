@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  LimitExpression = types.LimitExpression,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  LimitExpression = types.LimitExpression;
 
 describe('LimitExpression', function () {
   it('returns a partial statement', function () {

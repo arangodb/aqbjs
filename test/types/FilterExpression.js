@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  FilterExpression = types.FilterExpression,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  FilterExpression = types.FilterExpression;
 
 describe('FilterExpression', function () {
   it('returns a partial statement', function () {

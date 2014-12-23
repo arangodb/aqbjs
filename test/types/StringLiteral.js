@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  StringLiteral = types.StringLiteral,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  StringLiteral = types.StringLiteral;
 
 describe('StringLiteral', function () {
   it('returns an expression', function () {

@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  BooleanLiteral = types.BooleanLiteral,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  BooleanLiteral = types.BooleanLiteral;
 
 describe('BooleanLiteral', function () {
   it('returns an expression', function () {
