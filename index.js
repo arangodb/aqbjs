@@ -1,5 +1,5 @@
-/* jshint globalstrict: true, es3: true */
-/* globals require: false, module: false, console: false */
+/*jshint browserify: true */
+/*globals console: false */
 'use strict';
 var AqlError = require('./errors').AqlError,
   assumptions = require('./assumptions'),
@@ -42,7 +42,7 @@ for (var key in types._PartialStatement.prototype) {
 
 QB.bool = function (value) {return new types.BooleanLiteral(value);};
 QB.num = function (value) {return new types.NumberLiteral(value);};
-QB.int_ = function (value) {return new types.IntegerLiteral(value);};
+QB.int_ = QB.int = function (value) {return new types.IntegerLiteral(value);};
 QB.str = function (value) {return new types.StringLiteral(value);};
 QB.list = function (arr) {return new types.ListLiteral(arr);};
 QB.obj = function (obj) {return new types.ObjectLiteral(obj);};
@@ -58,9 +58,9 @@ QB.expr = function (value) {return new types.RawExpression(value);};
 
 QB.and = function (/* x, y... */) {return new types.NAryOperation('&&', toArray(arguments));};
 QB.or = function (/* x, y... */) {return new types.NAryOperation('||', toArray(arguments));};
-QB.add = function (/* x, y... */) {return new types.NAryOperation('+', toArray(arguments));};
-QB.sub = function (/* x, y... */) {return new types.NAryOperation('-', toArray(arguments));};
-QB.mul = function (/* x, y... */) {return new types.NAryOperation('*', toArray(arguments));};
+QB.plus = QB.add = function (/* x, y... */) {return new types.NAryOperation('+', toArray(arguments));};
+QB.minus = QB.sub = function (/* x, y... */) {return new types.NAryOperation('-', toArray(arguments));};
+QB.times = QB.mul = function (/* x, y... */) {return new types.NAryOperation('*', toArray(arguments));};
 QB.div = function (/* x, y... */) {return new types.NAryOperation('/', toArray(arguments));};
 QB.mod = function (/* x, y... */) {return new types.NAryOperation('%', toArray(arguments));};
 QB.eq = function (x, y) {return new types.BinaryOperation('==', x, y);};
@@ -71,16 +71,8 @@ QB.lte = function (x, y) {return new types.BinaryOperation('<=', x, y);};
 QB.neq = function (x, y) {return new types.BinaryOperation('!=', x, y);};
 QB.not = function (x) {return new types.UnaryOperation('!', x);};
 QB.neg = function (x) {return new types.UnaryOperation('-', x);};
-QB.in_ = function (x, y) {return new types.BinaryOperation('in', x, y);};
-QB.if_ = function (x, y, z) {return new types.TernaryOperation('?', ':', x, y, z);};
-
-QB.plus = QB.add;
-QB.minus = QB.sub;
-QB.times = QB.mul;
-
-QB['int'] = QB.int_;
-QB['in'] = QB.in_;
-QB['if'] = QB.if_;
+QB.in_ = QB.in = function (x, y) {return new types.BinaryOperation('in', x, y);};
+QB.if_ = QB.if = function (x, y, z) {return new types.TernaryOperation('?', ':', x, y, z);};
 
 QB.fn = function (functionName, arity) {
   if (typeof arity === 'number') {

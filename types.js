@@ -1,5 +1,4 @@
-/* jshint globalstrict: true, es3: true */
-/* globals require: false, exports: false */
+/*jshint browserify: true */
 'use strict';
 var AqlError = require('./errors').AqlError,
   keywords = require('./assumptions').keywords;
@@ -362,7 +361,7 @@ FunctionCall.prototype.toAQL = function () {
 };
 
 function PartialStatement() {}
-PartialStatement.prototype.for_ = function (varname) {
+PartialStatement.prototype.for = function (varname) {
   var self = this, inFn;
   inFn = function (expr) {
     // assert expr is an expression
@@ -371,7 +370,7 @@ PartialStatement.prototype.for_ = function (varname) {
   return {'in': inFn, in_: inFn};
 };
 PartialStatement.prototype.filter = function (expr) {return new FilterExpression(this, expr);};
-PartialStatement.prototype.let_ = function (varname, expr) {
+PartialStatement.prototype.let = function (varname, expr) {
   if (expr === undefined) {
     return new LetExpression(this, varname);
   }
@@ -388,7 +387,7 @@ PartialStatement.prototype.sort = function () {
   return new SortExpression(this, args);
 };
 PartialStatement.prototype.limit = function (x, y) {return new LimitExpression(this, x, y);};
-PartialStatement.prototype.return_ = function (x) {return new ReturnExpression(this, x);};
+PartialStatement.prototype.return = function (x) {return new ReturnExpression(this, x);};
 PartialStatement.prototype.remove = function (expr) {
   var self = this, inFn;
   inFn = function (collection) {
@@ -430,9 +429,9 @@ PartialStatement.prototype.replace = function (expr) {
   return {'with': withFn, with_: withFn, into: inFn, 'in': inFn, in_: inFn};
 };
 
-PartialStatement.prototype['for'] = PartialStatement.prototype.for_;
-PartialStatement.prototype['let'] = PartialStatement.prototype.let_;
-PartialStatement.prototype['return'] = PartialStatement.prototype.return_;
+PartialStatement.prototype.for_ = PartialStatement.prototype.for;
+PartialStatement.prototype.let_ = PartialStatement.prototype.let;
+PartialStatement.prototype.return_ = PartialStatement.prototype.return;
 
 function Definitions(dfns) {
   if (dfns instanceof Definitions) {
