@@ -34,11 +34,10 @@ warn = (function () {
   }
 }());
 
-for (var key in types._PartialStatement.prototype) {
-  if (types._PartialStatement.prototype.hasOwnProperty(key) && key !== 'constructor') {
-    QB[key] = bind(types._PartialStatement.prototype[key], null);
-  }
-}
+Object.keys(types._PartialStatement.prototype).forEach(function (key) {
+  if (key === 'constructor') return;
+  QB[key] = bind(types._PartialStatement.prototype[key], null);
+});
 
 QB.bool = function (value) {return new types.BooleanLiteral(value);};
 QB.num = function (value) {return new types.NumberLiteral(value);};
@@ -112,13 +111,11 @@ function deprecateAqlFunction(fn, functionName) {
   };
 }
 
-for (var key in assumptions.builtins) {
-  if (assumptions.builtins.hasOwnProperty(key)) {
-    QB[key] = QB.fn(key, assumptions.builtins[key]);
-    if (assumptions.deprecatedBuiltins.indexOf(key) !== -1) {
-      QB[key] = deprecateAqlFunction(QB[key], key);
-    }
+Object.keys(assumptions.builtins).forEach(function (key) {
+  QB[key] = QB.fn(key, assumptions.builtins[key]);
+  if (assumptions.deprecatedBuiltins.indexOf(key) !== -1) {
+    QB[key] = deprecateAqlFunction(QB[key], key);
   }
-}
+});
 
 module.exports = QB;
