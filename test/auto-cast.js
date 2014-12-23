@@ -114,4 +114,4 @@ describe('autoCastToken', function () {
       expect(e).to.be.an(AqlError);
     });
   });
-})
+});
