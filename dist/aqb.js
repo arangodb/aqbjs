@@ -489,7 +489,7 @@ function Identifier(value) {
     }
     this.value = value;
 }
-Identifier.re = /^[_a-z][_0-9a-z]*$/i;
+Identifier.re = /^[_a-z][-_0-9a-z]*$/i;
 Identifier.prototype = new Expression();
 Identifier.prototype.constructor = Identifier;
 Identifier.prototype.toAQL = function () {
