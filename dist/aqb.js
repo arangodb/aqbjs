@@ -256,6 +256,40 @@ function wrapAQL(expr) {
     }
     return expr.toAQL();
 }
+function isValidNumber(token) {
+    return typeof token === 'number' && token === token && token !== Infinity && token !== -Infinity;
+}
+function castNumber(number) {
+    if (Math.floor(number) === number) {
+        return new IntegerLiteral(number);
+    }
+    return new NumberLiteral(number);
+}
+function castString(str) {
+    if (str.match(NumberLiteral.re)) {
+        return autoCastToken(Number(str));
+    }
+    if (str.charAt(0) === '"') {
+        return new StringLiteral(JSON.parse(str));
+    }
+    var match = str.match(RangeExpression.re);
+    if (match) {
+        return new RangeExpression(Number(match[1]), Number(match[2]));
+    }
+    if (str.match(Identifier.re)) {
+        return new Identifier(str);
+    }
+    return new SimpleReference(str);
+}
+function castObject(obj) {
+    if (obj.constructor && obj.constructor.name === 'ArangoCollection') {
+        return new Identifier(obj.name());
+    }
+    if (Array.isArray(obj)) {
+        return new ListLiteral(obj);
+    }
+    return new ObjectLiteral(obj);
+}
 function autoCastToken(token) {
     var match;
     if (token === null || token === undefined) {
@@ -264,39 +298,17 @@ function autoCastToken(token) {
     if (token instanceof Expression || token instanceof PartialStatement) {
         return token;
     }
-    if (typeof token === 'number' && token === token && token !== Infinity && token !== -Infinity) {
-        if (Math.floor(token) === token) {
-            return new IntegerLiteral(token);
-        }
-        return new NumberLiteral(token);
+    if (isValidNumber(token)) {
+        return castNumber(token);
     }
     if (typeof token === 'boolean') {
         return new BooleanLiteral(token);
     }
     if (typeof token === 'string') {
-        if (token.match(/^[-+]?[0-9]+(\.[0-9]+)?$/)) {
-            return autoCastToken(Number(token));
-        }
-        if (token.charAt(0) === '"') {
-            return new StringLiteral(JSON.parse(token));
-        }
-        match = token.match(/^([0-9]+)\.\.([0-9]+)$/);
-        if (match) {
-            return new RangeExpression(Number(match[1]), Number(match[2]));
-        }
-        if (token.match(Identifier.re)) {
-            return new Identifier(token);
-        }
-        return new SimpleReference(token);
+        return castString(token);
     }
     if (typeof token === 'object') {
-        if (token.constructor && token.constructor.name === 'ArangoCollection') {
-            return new Identifier(token.name());
-        }
-        if (Array.isArray(token)) {
-            return new ListLiteral(token);
-        }
-        return new ObjectLiteral(token);
+        return castObject(token);
     }
     throw new AqlError('Invalid AQL value: (' + typeof token + ') ' + token);
 }
@@ -351,6 +363,7 @@ function NumberLiteral(value) {
         throw new AqlError('Expected value to be a finite number: ' + value);
     }
 }
+NumberLiteral.re = /^[-+]?[0-9]+(\.[0-9]+)?$/;
 NumberLiteral.prototype = new Expression();
 NumberLiteral.prototype.constructor = NumberLiteral;
 NumberLiteral.prototype.toAQL = function () {
@@ -429,6 +442,7 @@ function RangeExpression(start, end) {
     this.start = autoCastToken(start);
     this.end = autoCastToken(end);
 }
+RangeExpression.re = /^([0-9]+)\.\.([0-9]+)$/;
 RangeExpression.prototype = new Expression();
 RangeExpression.prototype.constructor = RangeExpression;
 RangeExpression.prototype.toAQL = function () {
