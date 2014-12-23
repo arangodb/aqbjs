@@ -249,21 +249,25 @@ Object.keys(assumptions.builtins).forEach(function (key) {
 module.exports = QB;
 },{"./assumptions":1,"./errors":2,"./types":4,"console":undefined}],4:[function(require,module,exports){
 'use strict';
-var AqlError = require('./errors').AqlError, keywords = require('./assumptions').keywords;
+var AqlError = require('./errors').AqlError;
+var keywords = require('./assumptions').keywords;
 function wrapAQL(expr) {
     if (expr instanceof Operation || expr instanceof Statement || expr instanceof PartialStatement) {
         return '(' + expr.toAQL() + ')';
     }
     return expr.toAQL();
 }
-function isValidNumber(token) {
-    return typeof token === 'number' && token === token && token !== Infinity && token !== -Infinity;
+function isValidNumber(number) {
+    return number === number && number !== Infinity && number !== -Infinity;
 }
 function castNumber(number) {
     if (Math.floor(number) === number) {
         return new IntegerLiteral(number);
     }
     return new NumberLiteral(number);
+}
+function castBoolean(bool) {
+    return new BooleanLiteral(bool);
 }
 function castString(str) {
     if (str.match(NumberLiteral.re)) {
@@ -291,27 +295,22 @@ function castObject(obj) {
     return new ObjectLiteral(obj);
 }
 function autoCastToken(token) {
-    var match;
     if (token === null || token === undefined) {
         return new NullLiteral();
     }
     if (token instanceof Expression || token instanceof PartialStatement) {
         return token;
     }
-    if (isValidNumber(token)) {
-        return castNumber(token);
+    var type = typeof token;
+    if (Object.keys(autoCastToken).indexOf(type) === -1) {
+        throw new AqlError('Invalid AQL value: (' + type + ') ' + token);
     }
-    if (typeof token === 'boolean') {
-        return new BooleanLiteral(token);
-    }
-    if (typeof token === 'string') {
-        return castString(token);
-    }
-    if (typeof token === 'object') {
-        return castObject(token);
-    }
-    throw new AqlError('Invalid AQL value: (' + typeof token + ') ' + token);
+    return autoCastToken[type](token);
 }
+autoCastToken.number = castNumber;
+autoCastToken['boolean'] = castBoolean;
+autoCastToken.string = castString;
+autoCastToken.object = castObject;
 function Expression() {
 }
 function Operation() {
@@ -359,7 +358,7 @@ function NumberLiteral(value) {
         value = value.value;
     }
     this.value = Number(value);
-    if (this.value !== this.value || this.value === Infinity) {
+    if (!isValidNumber(this.value)) {
         throw new AqlError('Expected value to be a finite number: ' + value);
     }
 }
@@ -374,7 +373,7 @@ function IntegerLiteral(value) {
         value = value.value;
     }
     this.value = Number(value);
-    if (this.value !== this.value || this.value === Infinity || Math.floor(this.value) !== this.value) {
+    if (!isValidNumber(this.value) || Math.floor(this.value) !== this.value) {
         throw new AqlError('Expected value to be a finite integer: ' + value);
     }
 }
