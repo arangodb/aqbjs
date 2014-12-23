@@ -75,6 +75,7 @@ describe('CollectIntoExpression', function () {
       'all_lower_case',
       'snakeCaseAlso',
       'CamelCaseHere',
+      'totally-radical',
       'ALL_UPPER_CASE',
       '__cRaZy__'
     ];
@@ -86,7 +87,6 @@ describe('CollectIntoExpression', function () {
     var values = [
       '',
       '-x',
-      'in-valid',
       'also bad',
       'überbad',
       'spaß'

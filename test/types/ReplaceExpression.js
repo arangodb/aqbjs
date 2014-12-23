@@ -87,6 +87,7 @@ describe('ReplaceExpression', function () {
       'snakeCaseAlso',
       'CamelCaseHere',
       'ALL_UPPER_CASE',
+      'totally-radical',
       '__cRaZy__'
     ];
     for (var i = 0; i < values.length; i++) {
@@ -97,7 +98,6 @@ describe('ReplaceExpression', function () {
     var values = [
       '',
       '-x',
-      'in-valid',
       'also bad',
       'überbad',
       'spaß'
