@@ -502,3 +502,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 #### REPLACE … OPTIONS options
 
 `ReplaceExpression::options(options) : Statement`
+
+# License
+
+The Apache License, Version 2.0. For more information, see the accompanying LICENSE file.
