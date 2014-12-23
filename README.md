@@ -2,12 +2,11 @@
 
 The query builder allows constructing complex AQL queries with a pure JavaScript fluid API.
 
-```js
-// in arangosh
-var db = require('org/arangodb').db;
-var qb = require('aqb');
-console.log(db._query(qb.for('x').in('1..5').return('x')).toArray()); // [1, 2, 3, 4, 5]
-```
+[![license - APACHE-2.0](https://img.shields.io/npm/l/aqb.svg)](http://opensource.org/licenses/APACHE-2.0) [![Dependencies](https://img.shields.io/david/arangodb/aqbjs.svg)](https://david-dm.org/arangodb/aqbjs)
+
+![NPM status](https://nodei.co/npm/aqb.png?downloads=true&stars=true)
+
+[![Build status](https://img.shields.io/travis/arangodb/aqbjs.svg)](https://travis-ci.org/arangodb/aqbjs) [![Coverage Status](https://img.shields.io/coveralls/arangodb/aqbjs.svg)](https://coveralls.io/r/arangodb/aqbjs?branch=master) [![Codacy rating](https://img.shields.io/codacy/1d5a1be201024e0caaf0aa6bc990231e.svg)](https://www.codacy.com/public/me_4/aqbjs)
 
 # Install
 
@@ -38,6 +37,15 @@ git clone https://github.com/arangodb/aqbjs.git
 cd aqbjs
 npm install
 npm run dist
+```
+
+# Example
+
+```js
+// in arangosh
+var db = require('org/arangodb').db;
+var qb = require('aqb');
+console.log(db._query(qb.for('x').in('1..5').return('x')).toArray()); // [1, 2, 3, 4, 5]
 ```
 
 ## API
