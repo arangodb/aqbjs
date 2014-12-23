@@ -17,10 +17,10 @@
   ],
   "scripts": {
     "test": "npm run lint && npm run test-only",
-    "test-only": "mocha -t 30000 --growl -R spec",
+    "test-only": "mocha -t 30000 --growl -R spec test test/**",
     "cover": "npm run lint && istanbul cover --report lcov _mocha -- -t 30000 -R spec",
     "coveralls": "npm run cover && cat ./coverage/lcov.info | coveralls ; rm -rf ./coverage",
-    "lint": "jshint index.js *.js test",
+    "lint": "jshint index.js *.js test test/**",
     "prepublish": "npm run lint"
   },
   "repository": {
