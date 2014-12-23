@@ -46,7 +46,7 @@ describe('FunctionCall', function () {
       'not:good:either'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new FunctionCall(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new FunctionCall(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as function names', function () {
@@ -63,7 +63,7 @@ describe('FunctionCall', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new FunctionCall(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new FunctionCall(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('auto-casts arguments', function () {
@@ -93,7 +93,7 @@ describe('FunctionCall', function () {
       {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new FunctionCall('hello', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new FunctionCall('hello', values[i]);}).to.throwException(isAqlError);
     }
   });
 });

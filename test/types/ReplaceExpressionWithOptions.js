@@ -103,7 +103,7 @@ describe('ReplaceExpressionWithOptions', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ReplaceExpressionWithOptions(null, 'x', 'y', values[i], 'a');}).to.throwException(isAqlError);
+      expect(function () {return new ReplaceExpressionWithOptions(null, 'x', 'y', values[i], 'a');}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as collection names', function () {
@@ -120,7 +120,7 @@ describe('ReplaceExpressionWithOptions', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ReplaceExpressionWithOptions(null, 'x', 'y', values[i], 'a');}).to.throwException(isAqlError);
+      expect(function () {return new ReplaceExpressionWithOptions(null, 'x', 'y', values[i], 'a');}).to.throwException(isAqlError);
     }
   });
   it('auto-casts options', function () {

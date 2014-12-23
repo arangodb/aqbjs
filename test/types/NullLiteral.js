@@ -30,7 +30,7 @@ describe('NullLiteral', function () {
   it('does not accept falsey values', function () {
     var values = [false, 0, ''];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new NullLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new NullLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values', function () {
@@ -43,7 +43,7 @@ describe('NullLiteral', function () {
       function also() {return this;}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new NullLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new NullLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
 });

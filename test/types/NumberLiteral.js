@@ -52,10 +52,10 @@ describe('NumberLiteral', function () {
     expect(src).not.to.equal(copy);
   });
   it('does not accept NaN', function () {
-    expect(function () {new NumberLiteral(NaN);}).to.throwException(isAqlError);
+    expect(function () {return new NumberLiteral(NaN);}).to.throwException(isAqlError);
   });
   it('does not accept Infinity', function () {
-    expect(function () {new NumberLiteral(Infinity);}).to.throwException(isAqlError);
+    expect(function () {return new NumberLiteral(Infinity);}).to.throwException(isAqlError);
   });
   it('does not accept non-numeric values', function () {
     var values = [
@@ -68,7 +68,7 @@ describe('NumberLiteral', function () {
       {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new NumberLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new NumberLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
 });

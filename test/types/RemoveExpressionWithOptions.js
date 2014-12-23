@@ -71,7 +71,7 @@ describe('RemoveExpressionWithOptions', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new RemoveExpressionWithOptions(null, 'x', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new RemoveExpressionWithOptions(null, 'x', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as collection names', function () {
@@ -88,7 +88,7 @@ describe('RemoveExpressionWithOptions', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new RemoveExpressionWithOptions(null, 'x', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new RemoveExpressionWithOptions(null, 'x', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('auto-casts options', function () {

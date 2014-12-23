@@ -42,7 +42,7 @@ describe('ForExpression', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ForExpression(null, values[i], 'y');}).to.throwException(isAqlError);
+      expect(function () {return new ForExpression(null, values[i], 'y');}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as variable names', function () {
@@ -59,7 +59,7 @@ describe('ForExpression', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ForExpression(null, values[i], 'y');}).to.throwException(isAqlError);
+      expect(function () {return new ForExpression(null, values[i], 'y');}).to.throwException(isAqlError);
     }
   });
   it('auto-casts expressions', function () {

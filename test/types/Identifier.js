@@ -45,7 +45,7 @@ describe('Identifier', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new Identifier(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new Identifier(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values', function () {
@@ -62,7 +62,7 @@ describe('Identifier', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new Identifier(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new Identifier(values[i]);}).to.throwException(isAqlError);
     }
   });
 });

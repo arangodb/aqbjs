@@ -38,7 +38,7 @@ describe('CollectIntoExpression', function () {
     expect(new CollectIntoExpression(null, [['a', 23], ['b', 42]], 'z').toAQL()).to.equal('COLLECT a = 23, b = 42 INTO z');
   });
   it('does not accept empty assignments', function () {
-    expect(function () {new CollectIntoExpression(null, {}, 'z');}).to.throwException(isAqlError);
+    expect(function () {return new CollectIntoExpression(null, {}, 'z');}).to.throwException(isAqlError);
   });
   it('does not accept non-object assignments', function () {
     var values = [
@@ -50,7 +50,7 @@ describe('CollectIntoExpression', function () {
       function () {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new CollectIntoExpression(null, values[i], 'z');}).to.throwException(isAqlError);
+      expect(function () {return new CollectIntoExpression(null, values[i], 'z');}).to.throwException(isAqlError);
     }
   });
   it('wraps Operation values in parentheses', function () {
@@ -92,7 +92,7 @@ describe('CollectIntoExpression', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new CollectIntoExpression(null, {x: 'y'}, values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new CollectIntoExpression(null, {x: 'y'}, values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as variable names', function () {
@@ -109,7 +109,7 @@ describe('CollectIntoExpression', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new CollectIntoExpression(null, {x: 'y'}, values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new CollectIntoExpression(null, {x: 'y'}, values[i]);}).to.throwException(isAqlError);
     }
   });
   it('converts preceding nodes to AQL', function () {

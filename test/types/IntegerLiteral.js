@@ -39,7 +39,7 @@ describe('IntegerLiteral', function () {
   it('does not accept numeric non-integer values', function () {
     var values = [1.5, '1.5', -0.01, '-0.01'];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new IntegerLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new IntegerLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('clones IntegerLiteral instances', function () {
@@ -57,14 +57,14 @@ describe('IntegerLiteral', function () {
   it('does not accept non-integer NumberLiteral instances', function () {
     var values = [new NumberLiteral(1.5), new NumberLiteral(-0.01)];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new IntegerLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new IntegerLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept NaN', function () {
-    expect(function () {new IntegerLiteral(NaN);}).to.throwException(isAqlError);
+    expect(function () {return new IntegerLiteral(NaN);}).to.throwException(isAqlError);
   });
   it('does not accept Infinity', function () {
-    expect(function () {new IntegerLiteral(Infinity);}).to.throwException(isAqlError);
+    expect(function () {return new IntegerLiteral(Infinity);}).to.throwException(isAqlError);
   });
   it('does not accept non-numeric values', function () {
     var values = [
@@ -77,7 +77,7 @@ describe('IntegerLiteral', function () {
       {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new IntegerLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new IntegerLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
 });

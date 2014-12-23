@@ -34,7 +34,7 @@ describe('SortExpression', function () {
     }
   });
   it('does not accept empty values', function () {
-    expect(function () {new SortExpression(null, []);}).to.throwException(isAqlError);
+    expect(function () {return new SortExpression(null, []);}).to.throwException(isAqlError);
   });
   it('does not accept non-array values', function () {
     var values = [
@@ -49,7 +49,7 @@ describe('SortExpression', function () {
       {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new SortExpression(null, values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new SortExpression(null, values[i]);}).to.throwException(isAqlError);
     }
   });
   it('accepts ASC/DESC keywords', function () {
@@ -66,7 +66,7 @@ describe('SortExpression', function () {
       ['ASC', 'DESC']
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new SortExpression(null, values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new SortExpression(null, values[i]);}).to.throwException(isAqlError);
     }
   });
   it('wraps Operation values in parentheses', function () {

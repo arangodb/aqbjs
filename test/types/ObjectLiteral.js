@@ -54,7 +54,7 @@ describe('ObjectLiteral', function () {
       function () {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ObjectLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new ObjectLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('quotes unsafe keys in AQL', function () {

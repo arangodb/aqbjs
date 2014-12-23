@@ -44,7 +44,7 @@ describe('NAryOperation', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new NAryOperation(values[i], ['x', 'y']);}).to.throwException(isAqlError);
+      expect(function () {return new NAryOperation(values[i], ['x', 'y']);}).to.throwException(isAqlError);
     }
   });
   it('auto-casts values', function () {

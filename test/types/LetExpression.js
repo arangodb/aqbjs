@@ -38,7 +38,7 @@ describe('LetExpression', function () {
     expect(new LetExpression(null, [['a', 23], ['b', 42]]).toAQL()).to.equal('LET a = 23, b = 42');
   });
   it('does not accept empty assignments', function () {
-    expect(function () {new LetExpression(null, {});}).to.throwException(isAqlError);
+    expect(function () {return new LetExpression(null, {});}).to.throwException(isAqlError);
   });
   it('does not accept non-object assignments', function () {
     var values = [
@@ -50,7 +50,7 @@ describe('LetExpression', function () {
       function () {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new LetExpression(null, values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new LetExpression(null, values[i]);}).to.throwException(isAqlError);
     }
   });
   it('wraps Operation values in parentheses', function () {

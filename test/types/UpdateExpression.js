@@ -103,7 +103,7 @@ describe('UpdateExpression', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new UpdateExpression(null, 'x', 'y', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new UpdateExpression(null, 'x', 'y', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as collection names', function () {
@@ -120,7 +120,7 @@ describe('UpdateExpression', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new UpdateExpression(null, 'x', 'y', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new UpdateExpression(null, 'x', 'y', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('converts preceding nodes to AQL', function () {

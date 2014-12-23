@@ -38,7 +38,7 @@ describe('CollectExpression', function () {
     expect(new CollectExpression(null, [['a', 23], ['b', 42]]).toAQL()).to.equal('COLLECT a = 23, b = 42');
   });
   it('does not accept empty assignments', function () {
-    expect(function () {new CollectExpression(null, {});}).to.throwException(isAqlError);
+    expect(function () {return new CollectExpression(null, {});}).to.throwException(isAqlError);
   });
   it('does not accept non-object assignments', function () {
     var values = [
@@ -50,7 +50,7 @@ describe('CollectExpression', function () {
       function () {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new CollectExpression(null, values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new CollectExpression(null, values[i]);}).to.throwException(isAqlError);
     }
   });
   it('wraps Operation values in parentheses', function () {

@@ -22,7 +22,7 @@ describe('Definitions', function () {
     expect(new Definitions([['a', 23], ['b', 42]]).toAQL()).to.equal('a = 23, b = 42');
   });
   it('does not accept empty assignments', function () {
-    expect(function () {new Definitions({});}).to.throwException(isAqlError);
+    expect(function () {return new Definitions({});}).to.throwException(isAqlError);
   });
   it('auto-casts assignment values', function () {
     expect(new Definitions({a: 42}).dfns[0][1].constructor).to.equal(types.IntegerLiteral);
@@ -50,7 +50,7 @@ describe('Definitions', function () {
       function () {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new Definitions(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new Definitions(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('clones Definitions instances', function () {

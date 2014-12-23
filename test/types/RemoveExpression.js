@@ -71,7 +71,7 @@ describe('RemoveExpression', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new RemoveExpression(null, 'x', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new RemoveExpression(null, 'x', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values as collection names', function () {
@@ -88,7 +88,7 @@ describe('RemoveExpression', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new RemoveExpression(null, 'x', values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new RemoveExpression(null, 'x', values[i]);}).to.throwException(isAqlError);
     }
   });
   it('converts preceding nodes to AQL', function () {

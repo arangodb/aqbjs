@@ -55,7 +55,7 @@ describe('ListLiteral', function () {
       {}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new ListLiteral(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new ListLiteral(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('wraps Operation values in parentheses', function () {

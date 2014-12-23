@@ -45,7 +45,7 @@ describe('TernaryOperation', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new TernaryOperation(values[i], values[i], 'x', 'y', 'z');}).to.throwException(isAqlError);
+      expect(function () {return new TernaryOperation(values[i], values[i], 'x', 'y', 'z');}).to.throwException(isAqlError);
     }
   });
   it('auto-casts values', function () {

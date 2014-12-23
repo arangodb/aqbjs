@@ -44,7 +44,7 @@ describe('UnaryOperation', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new UnaryOperation(values[i], 'x');}).to.throwException(isAqlError);
+      expect(function () {return new UnaryOperation(values[i], 'x');}).to.throwException(isAqlError);
     }
   });
   it('auto-casts values', function () {

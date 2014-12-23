@@ -44,7 +44,7 @@ describe('BinaryOperation', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new BinaryOperation(values[i], 'x', 'y');}).to.throwException(isAqlError);
+      expect(function () {return new BinaryOperation(values[i], 'x', 'y');}).to.throwException(isAqlError);
     }
   });
   it('auto-casts values', function () {

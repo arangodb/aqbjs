@@ -59,7 +59,7 @@ describe('SimpleReference', function () {
       'spaß'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new SimpleReference(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new SimpleReference(values[i]);}).to.throwException(isAqlError);
     }
   });
   it('does not accept any other values', function () {
@@ -76,7 +76,7 @@ describe('SimpleReference', function () {
       []
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(function () {new SimpleReference(values[i]);}).to.throwException(isAqlError);
+      expect(function () {return new SimpleReference(values[i]);}).to.throwException(isAqlError);
     }
   });
 });
