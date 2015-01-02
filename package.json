@@ -1,6 +1,6 @@
 {
   "name": "aqb",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "ArangoDB AQL query builder.",
   "main": "index.js",
   "keywords": [
