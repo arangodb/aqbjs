@@ -666,7 +666,7 @@ LetReturnExpression.prototype = new Statement();
 LetReturnExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'LET ' + wrapAQL(this.varname) + ' = ' + this.keyword + ' ' +
+    'LET ' + wrapAQL(this.varname) + ' = ' + wrapAQL(this.keyword) + ' ' +
     'RETURN ' + wrapAQL(this.varname)
   );
 };
