@@ -529,6 +529,25 @@ CollectIntoExpression.prototype.toAQL = function () {
     ' INTO ' + this.varname.toAQL()
   );
 };
+CollectIntoExpression.prototype.count = function () {
+  return new CollectIntoCountExpression(this.prev, this.dfns, this.varname);
+};
+
+function CollectIntoCountExpression(prev, dfns, varname) {
+  this.prev = prev;
+  this.dfns = new Definitions(dfns);
+  this.varname = new Identifier(varname);
+}
+CollectIntoCountExpression.prototype = new PartialStatement();
+CollectIntoCountExpression.prototype.constructor = CollectIntoCountExpression;
+CollectIntoCountExpression.prototype.toAQL = function () {
+  return (
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
+    'COLLECT ' + this.dfns.toAQL() +
+    ' INTO ' + this.varname.toAQL() +
+    ' COUNT'
+  );
+};
 
 function SortExpression(prev, args) {
   if (!args || !Array.isArray(args)) {
@@ -800,6 +819,7 @@ exports._Statement = Statement;
 exports._PartialStatement = PartialStatement;
 exports._Definitions = Definitions;
 exports._CollectIntoExpression = CollectIntoExpression;
+exports._CollectIntoCountExpression = CollectIntoCountExpression;
 exports._RemoveExpressionWithOptions = RemoveExpressionWithOptions;
 exports._InsertExpressionWithOptions = InsertExpressionWithOptions;
 exports._UpdateExpressionWithOptions = UpdateExpressionWithOptions;
