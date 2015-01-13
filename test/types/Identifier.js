@@ -28,12 +28,21 @@ describe('Identifier', function () {
       'all_lower_case',
       'snakeCaseAlso',
       'CamelCaseHere',
-      'totally-radical',
       'ALL_UPPER_CASE',
       '__cRaZy__'
     ];
     for (var i = 0; i < values.length; i++) {
       expect(new Identifier(values[i]).toAQL()).to.equal(values[i]);
+    }
+  });
+  it('wraps values in backticks if necessary', function () {
+    var values = [
+      'for',
+      'RETURN',
+      'totally-radical'
+    ];
+    for (var i = 0; i < values.length; i++) {
+      expect(new Identifier(values[i]).toAQL()).to.equal('`' + values[i] + '`');
     }
   });
   it('does not accept malformed strings', function () {

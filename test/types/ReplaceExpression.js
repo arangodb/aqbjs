@@ -87,7 +87,6 @@ describe('ReplaceExpression', function () {
       'snakeCaseAlso',
       'CamelCaseHere',
       'ALL_UPPER_CASE',
-      'totally-radical',
       '__cRaZy__'
     ];
     for (var i = 0; i < values.length; i++) {

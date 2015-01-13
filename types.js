@@ -240,7 +240,7 @@ Identifier.prototype = new Expression();
 Identifier.prototype.constructor = Identifier;
 Identifier.prototype.toAQL = function () {
   var value = String(this.value);
-  if (keywords.indexOf(value.toLowerCase()) === -1) {
+  if (keywords.indexOf(value.toLowerCase()) === -1 && value.indexOf('-') === -1) {
     return value;
   }
   return '`' + value + '`';
