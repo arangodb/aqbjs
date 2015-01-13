@@ -136,4 +136,24 @@ describe('UpdateExpression', function () {
       expect(optExpr.opts.value).to.equal('a');
     });
   });
+  describe('returnOld', function () {
+    var expr = new UpdateExpression(null, 'x', 'y', 'z');
+    it('returns a LetReturnExpression', function () {
+      var rtrnExpr = expr.returnOld('a');
+      expect(rtrnExpr).to.be.a(types._LetReturnExpression);
+      expect(rtrnExpr.toAQL).to.be.a('function');
+      expect(rtrnExpr.varname.value).to.equal('a');
+      expect(rtrnExpr.keyword.value).to.equal('OLD');
+    });
+  });
+  describe('returnNew', function () {
+    var expr = new UpdateExpression(null, 'x', 'y', 'z');
+    it('returns a LetReturnExpression', function () {
+      var rtrnExpr = expr.returnNew('a');
+      expect(rtrnExpr).to.be.a(types._LetReturnExpression);
+      expect(rtrnExpr.toAQL).to.be.a('function');
+      expect(rtrnExpr.varname.value).to.equal('a');
+      expect(rtrnExpr.keyword.value).to.equal('NEW');
+    });
+  });
 });

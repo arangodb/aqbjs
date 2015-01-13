@@ -104,4 +104,14 @@ describe('RemoveExpression', function () {
       expect(optExpr.opts.value).to.equal('a');
     });
   });
+  describe('returnOld', function () {
+    var expr = new RemoveExpression(null, 'x', 'y');
+    it('returns a LetReturnExpression', function () {
+      var rtrnExpr = expr.returnOld('a');
+      expect(rtrnExpr).to.be.a(types._LetReturnExpression);
+      expect(rtrnExpr.toAQL).to.be.a('function');
+      expect(rtrnExpr.varname.value).to.equal('a');
+      expect(rtrnExpr.keyword.value).to.equal('OLD');
+    });
+  });
 });

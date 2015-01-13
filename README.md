@@ -493,6 +493,10 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 * `remove(expression).in_(collection)`
 * `remove(expression).into(collection)`
 
+### REMOVE … LET varname = OLD RETURN varname
+
+`RemoveExpression::returnOld(varname) : Statement`
+
 ### REMOVE … OPTIONS options
 
 `RemoveExpression::options(options) : Statement`
@@ -509,6 +513,10 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 ### INSERT … OPTIONS options
 
 `InsertExpression::options(options) : Statement`
+
+### INSERT … LET varname = NEW RETURN varname
+
+`InsertExpression::returnNew(varname) : Statement`
 
 ### UPDATE expression1 WITH expression2 IN collection
 
@@ -535,6 +543,14 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `UpdateExpression::options(options) : Statement`
 
+### UPDATE … LET varname = NEW RETURN varname
+
+`UpdateExpression::returnNew(varname) : Statement`
+
+### UPDATE … LET varname = OLD RETURN varname
+
+`UpdateExpression::returnOld(varname) : Statement`
+
 ### REPLACE expression1 WITH expression2 IN collection
 
 `PartialStatement::replace(expression1).with(expression2).in(collection) : ReplaceExpression`
@@ -559,6 +575,14 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 ### REPLACE … OPTIONS options
 
 `ReplaceExpression::options(options) : Statement`
+
+### REPLACE … LET varname = NEW RETURN varname
+
+`ReplaceExpression::returnOld(varname) : Statement`
+
+### REPLACE … LET varname = OLD RETURN varname
+
+`ReplaceExpression::returnNew(varname) : Statement`
 
 # License
 
