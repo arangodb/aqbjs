@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  OptionsExpression = types._OptionsExpression,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  OptionsExpression = types._OptionsExpression;
 
 describe('OptionsExpression', function () {
   it('returns a statement', function () {

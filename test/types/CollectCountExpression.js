@@ -3,11 +3,7 @@
 'use strict';
 var expect = require('expect.js'),
   types = require('../../types'),
-  CollectCountExpression = types._CollectCountExpression,
-  AqlError = require('../../errors').AqlError,
-  isAqlError = function (e) {
-    expect(e).to.be.an(AqlError);
-  };
+  CollectCountExpression = types._CollectCountExpression;
 
 describe('CollectCountExpression', function () {
   it('returns a partial statement', function () {
