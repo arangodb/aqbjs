@@ -506,7 +506,7 @@ function CollectExpression(prev, dfns) {
 CollectExpression.prototype = new PartialStatement();
 CollectExpression.prototype.constructor = CollectExpression;
 CollectExpression.prototype.into = function (varname) {
-  return new CollectIntoExpression(this.prev, this.dfns, varname);
+  return new CollectIntoExpression(this, varname);
 };
 CollectExpression.prototype.toAQL = function () {
   return (
@@ -514,10 +514,13 @@ CollectExpression.prototype.toAQL = function () {
     'COLLECT ' + this.dfns.toAQL()
   );
 };
+CollectExpression.prototype.keep = function () {
+  var args = Array.prototype.slice.call(arguments);
+  return new CollectKeepExpression(this, args);
+};
 
-function CollectIntoExpression(prev, dfns, varname) {
+function CollectIntoExpression(prev, varname) {
   this.prev = prev;
-  this.dfns = new Definitions(dfns);
   this.varname = new Identifier(varname);
 }
 CollectIntoExpression.prototype = new PartialStatement();
@@ -525,29 +528,46 @@ CollectIntoExpression.prototype.constructor = CollectIntoExpression;
 CollectIntoExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'COLLECT ' + this.dfns.toAQL() +
-    ' INTO ' + this.varname.toAQL()
+    'INTO ' + this.varname.toAQL()
   );
 };
 CollectIntoExpression.prototype.count = function () {
-  return new CollectIntoCountExpression(this.prev, this.dfns, this.varname);
+  return new CollectCountExpression(this);
 };
+CollectIntoExpression.prototype.keep = CollectExpression.prototype.keep;
 
-function CollectIntoCountExpression(prev, dfns, varname) {
+function CollectCountExpression(prev) {
   this.prev = prev;
-  this.dfns = new Definitions(dfns);
-  this.varname = new Identifier(varname);
 }
-CollectIntoCountExpression.prototype = new PartialStatement();
-CollectIntoCountExpression.prototype.constructor = CollectIntoCountExpression;
-CollectIntoCountExpression.prototype.toAQL = function () {
+CollectCountExpression.prototype = new PartialStatement();
+CollectCountExpression.prototype.constructor = CollectCountExpression;
+CollectCountExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'COLLECT ' + this.dfns.toAQL() +
-    ' INTO ' + this.varname.toAQL() +
-    ' COUNT'
+    'COUNT'
   );
 };
+CollectCountExpression.prototype.keep = CollectExpression.prototype.keep;
+
+function CollectKeepExpression(prev, args) {
+  if (!args || !Array.isArray(args)) {
+    throw new AqlError('Expected sort list to be an array: ' + args);
+  }
+  if (!args.length) {
+    throw new AqlError('Expected sort list not to be empty: ' + args);
+  }
+  this.prev = prev;
+  this.args = args.map(autoCastToken);
+}
+CollectKeepExpression.prototype = new PartialStatement();
+CollectKeepExpression.prototype.constructor = CollectKeepExpression;
+CollectKeepExpression.prototype.toAQL = function () {
+  return (
+    (this.prev ? this.prev.toAQL() + ' ' : '') +
+    'KEEP ' + this.args.map(wrapAQL).join(', ')
+  );
+};
+CollectKeepExpression.prototype.keep = CollectExpression.prototype.keep;
 
 function SortExpression(prev, args) {
   if (!args || !Array.isArray(args)) {
@@ -642,7 +662,7 @@ function RemoveExpression(prev, expr, collection) {
 RemoveExpression.prototype = new Statement();
 RemoveExpression.prototype.constructor = RemoveExpression;
 RemoveExpression.prototype.options = function (opts) {
-  return new RemoveExpressionWithOptions(this.prev, this.expr, this.collection, opts);
+  return new OptionsExpression(this, opts);
 };
 RemoveExpression.prototype.toAQL = function () {
   return (
@@ -652,20 +672,16 @@ RemoveExpression.prototype.toAQL = function () {
   );
 };
 
-function RemoveExpressionWithOptions(prev, expr, collection, opts) {
+function OptionsExpression(prev, opts) {
   this.prev = prev;
-  this.expr = autoCastToken(expr);
-  this.collection = new Identifier(collection);
   this.opts = autoCastToken(opts);
 }
-RemoveExpressionWithOptions.prototype = new Statement();
-RemoveExpressionWithOptions.prototype.constructor = RemoveExpressionWithOptions;
-RemoveExpressionWithOptions.prototype.toAQL = function () {
+OptionsExpression.prototype = new Statement();
+OptionsExpression.prototype.constructor = OptionsExpression;
+OptionsExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'REMOVE ' + wrapAQL(this.expr) +
-    ' IN ' + wrapAQL(this.collection) +
-    ' OPTIONS ' + wrapAQL(this.opts)
+    'OPTIONS ' + wrapAQL(this.opts)
   );
 };
 
@@ -677,30 +693,13 @@ function InsertExpression(prev, expr, collection) {
 InsertExpression.prototype = new Statement();
 InsertExpression.prototype.constructor = InsertExpression;
 InsertExpression.prototype.options = function (opts) {
-  return new InsertExpressionWithOptions(this.prev, this.expr, this.collection, opts);
+  return new OptionsExpression(this, opts);
 };
 InsertExpression.prototype.toAQL = function () {
   return (
     (this.prev ? this.prev.toAQL() + ' ' : '') +
     'INSERT ' + wrapAQL(this.expr) +
     ' INTO ' + wrapAQL(this.collection)
-  );
-};
-
-function InsertExpressionWithOptions(prev, expr, collection, opts) {
-  this.prev = prev;
-  this.expr = autoCastToken(expr);
-  this.collection = new Identifier(collection);
-  this.opts = autoCastToken(opts);
-}
-InsertExpressionWithOptions.prototype = new Statement();
-InsertExpressionWithOptions.prototype.constructor = InsertExpressionWithOptions;
-InsertExpressionWithOptions.prototype.toAQL = function () {
-  return (
-    (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'INSERT ' + wrapAQL(this.expr) +
-    ' INTO ' + wrapAQL(this.collection) +
-    ' OPTIONS ' + wrapAQL(this.opts)
   );
 };
 
@@ -713,7 +712,7 @@ function UpdateExpression(prev, expr, withExpr, collection) {
 UpdateExpression.prototype = new Statement();
 UpdateExpression.prototype.constructor = UpdateExpression;
 UpdateExpression.prototype.options = function (opts) {
-  return new UpdateExpressionWithOptions(this.prev, this.expr, this.withExpr, this.collection, opts);
+  return new OptionsExpression(this, opts);
 };
 UpdateExpression.prototype.toAQL = function () {
   return (
@@ -721,25 +720,6 @@ UpdateExpression.prototype.toAQL = function () {
     'UPDATE ' + wrapAQL(this.expr) +
     (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
     ' IN ' + wrapAQL(this.collection)
-  );
-};
-
-function UpdateExpressionWithOptions(prev, expr, withExpr, collection, opts) {
-  this.prev = prev;
-  this.expr = autoCastToken(expr);
-  this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
-  this.collection = new Identifier(collection);
-  this.opts = autoCastToken(opts);
-}
-UpdateExpressionWithOptions.prototype = new Statement();
-UpdateExpressionWithOptions.prototype.constructor = UpdateExpressionWithOptions;
-UpdateExpressionWithOptions.prototype.toAQL = function () {
-  return (
-    (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'UPDATE ' + wrapAQL(this.expr) +
-    (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
-    ' IN ' + wrapAQL(this.collection) +
-    ' OPTIONS ' + wrapAQL(this.opts)
   );
 };
 
@@ -752,7 +732,7 @@ function ReplaceExpression(prev, expr, withExpr, collection) {
 ReplaceExpression.prototype = new Statement();
 ReplaceExpression.prototype.constructor = ReplaceExpression;
 ReplaceExpression.prototype.options = function (opts) {
-  return new ReplaceExpressionWithOptions(this.prev, this.expr, this.withExpr, this.collection, opts);
+  return new OptionsExpression(this, opts);
 };
 ReplaceExpression.prototype.toAQL = function () {
   return (
@@ -760,25 +740,6 @@ ReplaceExpression.prototype.toAQL = function () {
     'REPLACE ' + wrapAQL(this.expr) +
     (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
     ' IN ' + wrapAQL(this.collection)
-  );
-};
-
-function ReplaceExpressionWithOptions(prev, expr, withExpr, collection, opts) {
-  this.prev = prev;
-  this.expr = autoCastToken(expr);
-  this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
-  this.collection = new Identifier(collection);
-  this.opts = autoCastToken(opts);
-}
-ReplaceExpressionWithOptions.prototype = new Statement();
-ReplaceExpressionWithOptions.prototype.constructor = ReplaceExpressionWithOptions;
-ReplaceExpressionWithOptions.prototype.toAQL = function () {
-  return (
-    (this.prev ? this.prev.toAQL() + ' ' : '') +
-    'REPLACE ' + wrapAQL(this.expr) +
-    (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') +
-    ' IN ' + wrapAQL(this.collection) +
-    ' OPTIONS ' + wrapAQL(this.opts)
   );
 };
 
@@ -819,8 +780,6 @@ exports._Statement = Statement;
 exports._PartialStatement = PartialStatement;
 exports._Definitions = Definitions;
 exports._CollectIntoExpression = CollectIntoExpression;
-exports._CollectIntoCountExpression = CollectIntoCountExpression;
-exports._RemoveExpressionWithOptions = RemoveExpressionWithOptions;
-exports._InsertExpressionWithOptions = InsertExpressionWithOptions;
-exports._UpdateExpressionWithOptions = UpdateExpressionWithOptions;
-exports._ReplaceExpressionWithOptions = ReplaceExpressionWithOptions;
+exports._CollectCountExpression = CollectCountExpression;
+exports._CollectKeepExpression = CollectKeepExpression;
+exports._OptionsExpression = OptionsExpression;

@@ -129,9 +129,9 @@ describe('ReplaceExpression', function () {
   });
   describe('options', function () {
     var expr = new ReplaceExpression(null, 'x', 'y', 'z');
-    it('returns a ReplaceExpressionWithOptions', function () {
+    it('returns an OptionsExpression', function () {
       var optExpr = expr.options('a');
-      expect(optExpr).to.be.a(types._ReplaceExpressionWithOptions);
+      expect(optExpr).to.be.a(types._OptionsExpression);
       expect(optExpr.toAQL).to.be.a('function');
       expect(optExpr.opts.value).to.equal('a');
     });

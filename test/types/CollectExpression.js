@@ -82,4 +82,14 @@ describe('CollectExpression', function () {
       expect(optExpr.varname.value).to.equal('a');
     });
   });
+  describe('keep', function () {
+    var expr = new CollectExpression(null, {x: 'y'});
+    it('returns a CollectKeepExpression', function () {
+      var keepExpr = expr.keep('a', 'b');
+      expect(keepExpr).to.be.a(types._CollectKeepExpression);
+      expect(keepExpr.prev).to.equal(expr);
+      expect(keepExpr.toAQL).to.be.a('function');
+      expect(keepExpr.args).to.be.an(Array);
+    });
+  });
 });
