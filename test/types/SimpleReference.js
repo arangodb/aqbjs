@@ -21,6 +21,17 @@ describe('SimpleReference', function () {
     expect(src.toAQL()).to.equal(copy.toAQL());
     expect(src).not.to.equal(copy);
   });
+  it('accepts ArangoCollection instances', function () {
+    function ArangoCollection(name) {
+      this._name = 'lol';
+    }
+    ArangoCollection.prototype.name = function () {
+      return this._name;
+    };
+    var collection = new ArangoCollection('some_collection'),
+      ref = new SimpleReference(collection);
+    expect(ref.toAQL()).to.equal(collection.name());
+  });
   it('wraps well-formed strings', function () {
     var values = [
       '_',
@@ -37,11 +48,26 @@ describe('SimpleReference', function () {
       'CamelCaseHere.__cRaZy__',
       'ALL_UPPER_CASE.__cRaZy__',
       '__cRaZy__.__cRaZy__',
+      'pot@to',
       '@chicken',
-      '@@chicken.chicken'
+      '@@chicken.chicken',
+      'chicken.@chicken',
+      '`@chicken`.chicken',
+      'chicken.`@chicken`',
+      '`chicken`.`chicken`'
     ];
     for (var i = 0; i < values.length; i++) {
       expect(new SimpleReference(values[i]).toAQL()).to.equal(values[i]);
+    }
+  });
+  it('wraps values in backticks if necessary', function () {
+    var values = [
+      'for',
+      'RETURN',
+      'totally-radical'
+    ];
+    for (var i = 0; i < values.length; i++) {
+      expect(new SimpleReference(values[i]).toAQL()).to.equal('`' + values[i] + '`');
     }
   });
   it('does not accept malformed strings', function () {
@@ -50,10 +76,8 @@ describe('SimpleReference', function () {
       '-x',
       'a..b',
       'a.b..c',
-      'b@d',
       'bad.1',
       'bad[1]',
-      'in-valid',
       'also bad',
       'überbad',
       'spaß'

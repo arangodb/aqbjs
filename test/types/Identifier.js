@@ -21,6 +21,17 @@ describe('Identifier', function () {
     expect(src.toAQL()).to.equal(copy.toAQL());
     expect(src).not.to.equal(copy);
   });
+  it('accepts ArangoCollection instances', function () {
+    function ArangoCollection(name) {
+      this._name = 'lol';
+    }
+    ArangoCollection.prototype.name = function () {
+      return this._name;
+    };
+    var collection = new ArangoCollection('some_collection'),
+      id = new Identifier(collection);
+    expect(id.toAQL()).to.equal(collection.name());
+  });
   it('wraps well-formed strings', function () {
     var values = [
       '_',

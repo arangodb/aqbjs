@@ -52,7 +52,7 @@ function castString(str) {
 
 function castObject(obj) {
   if (obj.constructor && obj.constructor.name === 'ArangoCollection') {
-    return new Identifier(obj.name());
+    return new Identifier(obj);
   }
   if (Array.isArray(obj)) {
     return new ListLiteral(obj);
@@ -226,7 +226,13 @@ Keyword.prototype.toAQL = function () {
 };
 
 function Identifier(value) {
-  if (value && value instanceof Identifier) {value = value.value;}
+  if (value) {
+    if (value.constructor && value.constructor.name === 'ArangoCollection') {
+      value = value.name();
+    } else if (value instanceof Identifier) {
+      value = value.value;
+    }
+  }
   if (!value || typeof value !== 'string') {
     throw new AqlError('Expected value to be a string: ' + value);
   }
@@ -235,19 +241,25 @@ function Identifier(value) {
   }
   this.value = value;
 }
-Identifier.re = /^[_a-z][-_0-9a-z]*$/i;
+Identifier.re = /^[_@a-z][-_@0-9a-z]*$/i;
 Identifier.prototype = new Expression();
 Identifier.prototype.constructor = Identifier;
 Identifier.prototype.toAQL = function () {
   var value = String(this.value);
-  if (keywords.indexOf(value.toLowerCase()) === -1 && value.indexOf('-') === -1) {
-    return value;
+  if (keywords.indexOf(value.toLowerCase()) !== -1 || value.indexOf('-') !== -1) {
+    return '`' + value + '`';
   }
-  return '`' + value + '`';
+  return value;
 };
 
 function SimpleReference(value) {
-  if (value && value instanceof SimpleReference) {value = value.value;}
+  if (value) {
+    if (value.constructor && value.constructor.name === 'ArangoCollection') {
+      value = value.name();
+    } else if (value instanceof SimpleReference) {
+      value = value.value;
+    }
+  }
   if (!value || typeof value !== 'string') {
     throw new AqlError('Expected value to be a string: ' + value);
   }
@@ -256,13 +268,16 @@ function SimpleReference(value) {
   }
   this.value = value;
 }
-SimpleReference.re = /^@{0,2}[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*|\[\*\])*$/i;
+SimpleReference.re = /^([_@a-z][-_@0-9a-z]*|`[_@a-z][-_@0-9a-z]*`)(\.[_@a-z][-_@0-9a-z]*|\.`[_@a-z][-_@0-9a-z]*`|\[\*\])*$/i;
 SimpleReference.prototype = new Expression();
 SimpleReference.prototype.constructor = SimpleReference;
 SimpleReference.prototype.toAQL = function () {
   var value = String(this.value);
-  var tokens = value.split('.').map(function (token) {
-    return keywords.indexOf(token) === -1 ? token : '`' + token + '`';
+  var tokens = value.split('.').map(function (token, i) {
+    if (token.charAt(0) !== '`' && (keywords.indexOf(token.toLowerCase()) !== -1 || token.indexOf('-') !== -1)) {
+      return '`' + token + '`';
+    }
+    return token;
   });
   return tokens.join('.');
 };
