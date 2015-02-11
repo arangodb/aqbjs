@@ -176,13 +176,14 @@ Valid values:
 * `foo.bar.QUX`
 * `_foo._bar._qux`
 * `foo1.bar2`
+* `` `foo`.bar ``
+* `` foo.`bar` ``
 
 Invalid values:
 
 * `1foo`
 * `föö`
 * `foo bar`
-* `foo-bar`
 * `foo[bar]`
 
 ArangoDB collection objects can be passed directly:
