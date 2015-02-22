@@ -30,7 +30,7 @@ function QB(obj) {
   }
   if (typeof obj === 'object') {
     if (obj instanceof Date) {
-      return QB(JSON.stringify(obj));
+      return types.autoCastToken(JSON.stringify(obj));
     }
     if (obj instanceof Array) {
       return new types.ListLiteral(obj.map(QB));
