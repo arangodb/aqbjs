@@ -11,8 +11,10 @@ exports.keywords = [
   'in',
   'insert',
   'into',
+  'new',
   'let',
   'limit',
+  'old',
   'null',
   'remove',
   'replace',
@@ -33,7 +35,7 @@ exports.builtins = {
   CHAR_LENGTH: 1, LENGTH: 1, LOWER: 1, UPPER: 1, SUBSTRING: [2, 3],
   LEFT: 2, RIGHT: 2, TRIM: [1, 2], REVERSE: 1, CONTAINS: 3, LIKE: 3,
   LTRIM: [1, 2], RTRIM: [1, 2], FIND_FIRST: [2, 3, 4], FIND_LAST: [2, 3, 4],
-  SPLIT: [1, 2, 3], SUBSTITUTE: [2, 3, 4],
+  SPLIT: [1, 2, 3], SUBSTITUTE: [2, 3, 4], MD5: 1, SHA1: 1, RANDOM_TOKEN: 1,
   // Numeric functions
   FLOOR: 1, CEIL: 1, ROUND: 1, ABS: 1, SQRT: 1, RAND: 0,
   // Date functions
@@ -77,11 +79,6 @@ exports.builtins = {
 };
 
 exports.deprecatedBuiltins = [
-  'PATHS',
-  'TRAVERSAL',
-  'TRAVERSAL_TREE',
-  'SHORTEST_PATH',
-  'NEIGHBORS'
 ];
 
 },{}],2:[function(require,module,exports){
@@ -103,7 +100,7 @@ AqlError.prototype.name = 'AqlError';
 exports.AqlError = AqlError;
 },{}],3:[function(require,module,exports){
 'use strict';
-var AqlError = require('./errors').AqlError, assumptions = require('./assumptions'), types = require('./types'), QB = {}, toArray, warn;
+var AqlError = require('./errors').AqlError, assumptions = require('./assumptions'), types = require('./types'), toArray, warn;
 toArray = Function.prototype.call.bind(Array.prototype.slice);
 warn = function () {
     if (typeof console !== 'undefined') {
@@ -121,6 +118,30 @@ warn = function () {
         };
     }
 }();
+function QB(obj) {
+    if (typeof obj === 'string') {
+        return QB.str(obj);
+    }
+    if (obj === null || obj === undefined) {
+        return new types.NullLiteral();
+    }
+    if (typeof obj === 'object') {
+        if (obj instanceof Date) {
+            return types.autoCastToken(JSON.stringify(obj));
+        }
+        if (obj instanceof Array) {
+            return new types.ListLiteral(obj.map(QB));
+        }
+        var result = {};
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                result[key] = QB(obj[key]);
+            }
+        }
+        return new types.ObjectLiteral(result);
+    }
+    return types.autoCastToken(obj);
+}
 Object.keys(types._PartialStatement.prototype).forEach(function (key) {
     if (key === 'constructor')
         return;
@@ -287,7 +308,7 @@ function castString(str) {
 }
 function castObject(obj) {
     if (obj.constructor && obj.constructor.name === 'ArangoCollection') {
-        return new Identifier(obj.name());
+        return new Identifier(obj);
     }
     if (Array.isArray(obj)) {
         return new ListLiteral(obj);
@@ -475,8 +496,12 @@ Keyword.prototype.toAQL = function () {
     return String(this.value).toUpperCase();
 };
 function Identifier(value) {
-    if (value && value instanceof Identifier) {
-        value = value.value;
+    if (value) {
+        if (value.constructor && value.constructor.name === 'ArangoCollection') {
+            value = value.name();
+        } else if (value instanceof Identifier) {
+            value = value.value;
+        }
     }
     if (!value || typeof value !== 'string') {
         throw new AqlError('Expected value to be a string: ' + value);
@@ -486,19 +511,23 @@ function Identifier(value) {
     }
     this.value = value;
 }
-Identifier.re = /^[_a-z][-_0-9a-z]*$/i;
+Identifier.re = /^[_@a-z][-_@0-9a-z]*$/i;
 Identifier.prototype = new Expression();
 Identifier.prototype.constructor = Identifier;
 Identifier.prototype.toAQL = function () {
     var value = String(this.value);
-    if (keywords.indexOf(value.toLowerCase()) === -1) {
-        return value;
+    if (keywords.indexOf(value.toLowerCase()) !== -1 || value.indexOf('-') !== -1) {
+        return '`' + value + '`';
     }
-    return '`' + value + '`';
+    return value;
 };
 function SimpleReference(value) {
-    if (value && value instanceof SimpleReference) {
-        value = value.value;
+    if (value) {
+        if (value.constructor && value.constructor.name === 'ArangoCollection') {
+            value = value.name();
+        } else if (value instanceof SimpleReference) {
+            value = value.value;
+        }
     }
     if (!value || typeof value !== 'string') {
         throw new AqlError('Expected value to be a string: ' + value);
@@ -508,13 +537,16 @@ function SimpleReference(value) {
     }
     this.value = value;
 }
-SimpleReference.re = /^@{0,2}[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*|\[\*\])*$/i;
+SimpleReference.re = /^([_@a-z][-_@0-9a-z]*|`[_@a-z][-_@0-9a-z]*`)(\.[_@a-z][-_@0-9a-z]*|\.`[_@a-z][-_@0-9a-z]*`|\[\*\])*$/i;
 SimpleReference.prototype = new Expression();
 SimpleReference.prototype.constructor = SimpleReference;
 SimpleReference.prototype.toAQL = function () {
     var value = String(this.value);
-    var tokens = value.split('.').map(function (token) {
-            return keywords.indexOf(token) === -1 ? token : '`' + token + '`';
+    var tokens = value.split('.').map(function (token, i) {
+            if (token.charAt(0) !== '`' && (keywords.indexOf(token.toLowerCase()) !== -1 || token.indexOf('-') !== -1)) {
+                return '`' + token + '`';
+            }
+            return token;
         });
     return tokens.join('.');
 };
@@ -789,21 +821,53 @@ function CollectExpression(prev, dfns) {
 CollectExpression.prototype = new PartialStatement();
 CollectExpression.prototype.constructor = CollectExpression;
 CollectExpression.prototype.into = function (varname) {
-    return new CollectIntoExpression(this.prev, this.dfns, varname);
+    return new CollectIntoExpression(this, varname);
 };
 CollectExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'COLLECT ' + this.dfns.toAQL();
 };
-function CollectIntoExpression(prev, dfns, varname) {
+CollectExpression.prototype.keep = function () {
+    var args = Array.prototype.slice.call(arguments);
+    return new CollectKeepExpression(this, args);
+};
+function CollectIntoExpression(prev, varname) {
     this.prev = prev;
-    this.dfns = new Definitions(dfns);
     this.varname = new Identifier(varname);
 }
 CollectIntoExpression.prototype = new PartialStatement();
 CollectIntoExpression.prototype.constructor = CollectIntoExpression;
 CollectIntoExpression.prototype.toAQL = function () {
-    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'COLLECT ' + this.dfns.toAQL() + ' INTO ' + this.varname.toAQL();
+    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'INTO ' + this.varname.toAQL();
 };
+CollectIntoExpression.prototype.count = function () {
+    return new CollectCountExpression(this);
+};
+CollectIntoExpression.prototype.keep = CollectExpression.prototype.keep;
+function CollectCountExpression(prev) {
+    this.prev = prev;
+}
+CollectCountExpression.prototype = new PartialStatement();
+CollectCountExpression.prototype.constructor = CollectCountExpression;
+CollectCountExpression.prototype.toAQL = function () {
+    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'COUNT';
+};
+CollectCountExpression.prototype.keep = CollectExpression.prototype.keep;
+function CollectKeepExpression(prev, args) {
+    if (!args || !Array.isArray(args)) {
+        throw new AqlError('Expected sort list to be an array: ' + args);
+    }
+    if (!args.length) {
+        throw new AqlError('Expected sort list not to be empty: ' + args);
+    }
+    this.prev = prev;
+    this.args = args.map(autoCastToken);
+}
+CollectKeepExpression.prototype = new PartialStatement();
+CollectKeepExpression.prototype.constructor = CollectKeepExpression;
+CollectKeepExpression.prototype.toAQL = function () {
+    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'KEEP ' + this.args.map(wrapAQL).join(', ');
+};
+CollectKeepExpression.prototype.keep = CollectExpression.prototype.keep;
 function SortExpression(prev, args) {
     if (!args || !Array.isArray(args)) {
         throw new AqlError('Expected sort list to be an array: ' + args);
@@ -873,6 +937,36 @@ ReturnExpression.prototype.constructor = ReturnExpression;
 ReturnExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'RETURN ' + wrapAQL(this.value);
 };
+function LetReturnExpression(prev, varname, keyword) {
+    this.prev = prev;
+    this.varname = new Identifier(varname);
+    this.keyword = new Keyword(keyword);
+    if ([
+            'NEW',
+            'OLD'
+        ].indexOf(this.keyword.toAQL()) === -1) {
+        throw new AqlError('Keyword must be "NEW" or "OLD"');
+    }
+}
+LetReturnExpression.prototype = new Statement();
+LetReturnExpression.prototype.toAQL = function () {
+    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'LET ' + wrapAQL(this.varname) + ' = ' + wrapAQL(this.keyword) + ' ' + 'RETURN ' + wrapAQL(this.varname);
+};
+function OptionsExpression(prev, opts) {
+    this.prev = prev;
+    this.opts = autoCastToken(opts);
+}
+OptionsExpression.prototype = new Statement();
+OptionsExpression.prototype.constructor = OptionsExpression;
+OptionsExpression.prototype.returnOld = function (varname) {
+    return new LetReturnExpression(this, varname, 'OLD');
+};
+OptionsExpression.prototype.returnNew = function (varname) {
+    return new LetReturnExpression(this, varname, 'NEW');
+};
+OptionsExpression.prototype.toAQL = function () {
+    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'OPTIONS ' + wrapAQL(this.opts);
+};
 function RemoveExpression(prev, expr, collection) {
     this.prev = prev;
     this.expr = autoCastToken(expr);
@@ -881,21 +975,11 @@ function RemoveExpression(prev, expr, collection) {
 RemoveExpression.prototype = new Statement();
 RemoveExpression.prototype.constructor = RemoveExpression;
 RemoveExpression.prototype.options = function (opts) {
-    return new RemoveExpressionWithOptions(this.prev, this.expr, this.collection, opts);
+    return new OptionsExpression(this, opts);
 };
+RemoveExpression.prototype.returnOld = OptionsExpression.prototype.returnOld;
 RemoveExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'REMOVE ' + wrapAQL(this.expr) + ' IN ' + wrapAQL(this.collection);
-};
-function RemoveExpressionWithOptions(prev, expr, collection, opts) {
-    this.prev = prev;
-    this.expr = autoCastToken(expr);
-    this.collection = new Identifier(collection);
-    this.opts = autoCastToken(opts);
-}
-RemoveExpressionWithOptions.prototype = new Statement();
-RemoveExpressionWithOptions.prototype.constructor = RemoveExpressionWithOptions;
-RemoveExpressionWithOptions.prototype.toAQL = function () {
-    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'REMOVE ' + wrapAQL(this.expr) + ' IN ' + wrapAQL(this.collection) + ' OPTIONS ' + wrapAQL(this.opts);
 };
 function InsertExpression(prev, expr, collection) {
     this.prev = prev;
@@ -904,22 +988,10 @@ function InsertExpression(prev, expr, collection) {
 }
 InsertExpression.prototype = new Statement();
 InsertExpression.prototype.constructor = InsertExpression;
-InsertExpression.prototype.options = function (opts) {
-    return new InsertExpressionWithOptions(this.prev, this.expr, this.collection, opts);
-};
+InsertExpression.prototype.options = RemoveExpression.prototype.options;
+InsertExpression.prototype.returnNew = OptionsExpression.prototype.returnNew;
 InsertExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'INSERT ' + wrapAQL(this.expr) + ' INTO ' + wrapAQL(this.collection);
-};
-function InsertExpressionWithOptions(prev, expr, collection, opts) {
-    this.prev = prev;
-    this.expr = autoCastToken(expr);
-    this.collection = new Identifier(collection);
-    this.opts = autoCastToken(opts);
-}
-InsertExpressionWithOptions.prototype = new Statement();
-InsertExpressionWithOptions.prototype.constructor = InsertExpressionWithOptions;
-InsertExpressionWithOptions.prototype.toAQL = function () {
-    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'INSERT ' + wrapAQL(this.expr) + ' INTO ' + wrapAQL(this.collection) + ' OPTIONS ' + wrapAQL(this.opts);
 };
 function UpdateExpression(prev, expr, withExpr, collection) {
     this.prev = prev;
@@ -929,23 +1001,11 @@ function UpdateExpression(prev, expr, withExpr, collection) {
 }
 UpdateExpression.prototype = new Statement();
 UpdateExpression.prototype.constructor = UpdateExpression;
-UpdateExpression.prototype.options = function (opts) {
-    return new UpdateExpressionWithOptions(this.prev, this.expr, this.withExpr, this.collection, opts);
-};
+UpdateExpression.prototype.options = RemoveExpression.prototype.options;
+UpdateExpression.prototype.returnOld = OptionsExpression.prototype.returnOld;
+UpdateExpression.prototype.returnNew = OptionsExpression.prototype.returnNew;
 UpdateExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'UPDATE ' + wrapAQL(this.expr) + (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') + ' IN ' + wrapAQL(this.collection);
-};
-function UpdateExpressionWithOptions(prev, expr, withExpr, collection, opts) {
-    this.prev = prev;
-    this.expr = autoCastToken(expr);
-    this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
-    this.collection = new Identifier(collection);
-    this.opts = autoCastToken(opts);
-}
-UpdateExpressionWithOptions.prototype = new Statement();
-UpdateExpressionWithOptions.prototype.constructor = UpdateExpressionWithOptions;
-UpdateExpressionWithOptions.prototype.toAQL = function () {
-    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'UPDATE ' + wrapAQL(this.expr) + (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') + ' IN ' + wrapAQL(this.collection) + ' OPTIONS ' + wrapAQL(this.opts);
 };
 function ReplaceExpression(prev, expr, withExpr, collection) {
     this.prev = prev;
@@ -955,23 +1015,11 @@ function ReplaceExpression(prev, expr, withExpr, collection) {
 }
 ReplaceExpression.prototype = new Statement();
 ReplaceExpression.prototype.constructor = ReplaceExpression;
-ReplaceExpression.prototype.options = function (opts) {
-    return new ReplaceExpressionWithOptions(this.prev, this.expr, this.withExpr, this.collection, opts);
-};
+ReplaceExpression.prototype.options = RemoveExpression.prototype.options;
+ReplaceExpression.prototype.returnOld = OptionsExpression.prototype.returnOld;
+ReplaceExpression.prototype.returnNew = OptionsExpression.prototype.returnNew;
 ReplaceExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'REPLACE ' + wrapAQL(this.expr) + (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') + ' IN ' + wrapAQL(this.collection);
-};
-function ReplaceExpressionWithOptions(prev, expr, withExpr, collection, opts) {
-    this.prev = prev;
-    this.expr = autoCastToken(expr);
-    this.withExpr = withExpr === undefined ? undefined : autoCastToken(withExpr);
-    this.collection = new Identifier(collection);
-    this.opts = autoCastToken(opts);
-}
-ReplaceExpressionWithOptions.prototype = new Statement();
-ReplaceExpressionWithOptions.prototype.constructor = ReplaceExpressionWithOptions;
-ReplaceExpressionWithOptions.prototype.toAQL = function () {
-    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'REPLACE ' + wrapAQL(this.expr) + (this.withExpr ? ' WITH ' + wrapAQL(this.withExpr) : '') + ' IN ' + wrapAQL(this.collection) + ' OPTIONS ' + wrapAQL(this.opts);
 };
 exports.autoCastToken = autoCastToken;
 exports.RawExpression = RawExpression;
@@ -1008,10 +1056,10 @@ exports._Operation = Operation;
 exports._Statement = Statement;
 exports._PartialStatement = PartialStatement;
 exports._Definitions = Definitions;
+exports._LetReturnExpression = LetReturnExpression;
 exports._CollectIntoExpression = CollectIntoExpression;
-exports._RemoveExpressionWithOptions = RemoveExpressionWithOptions;
-exports._InsertExpressionWithOptions = InsertExpressionWithOptions;
-exports._UpdateExpressionWithOptions = UpdateExpressionWithOptions;
-exports._ReplaceExpressionWithOptions = ReplaceExpressionWithOptions;
+exports._CollectCountExpression = CollectCountExpression;
+exports._CollectKeepExpression = CollectKeepExpression;
+exports._OptionsExpression = OptionsExpression;
 },{"./assumptions":1,"./errors":2}]},{},[3])(3)
 });
