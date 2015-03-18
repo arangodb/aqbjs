@@ -62,6 +62,34 @@ describe('ObjectLiteral', function () {
     expect(new ObjectLiteral({0: 'b'}).toAQL()).to.equal('{0: b}');
     expect(new ObjectLiteral({' a': 'b'}).toAQL()).to.equal('{" a": b}');
     expect(new ObjectLiteral({'0a': 'b'}).toAQL()).to.equal('{"0a": b}');
+    expect(new ObjectLiteral({'\'a\'': "b"}).toAQL()).to.equal('{"\'a\'": b}');
+    expect(new ObjectLiteral({'":a"': "b"}).toAQL()).to.equal('{":a": b}');
+  });
+  it('handles quoted keys', function () {
+    expect(new ObjectLiteral({'"a"': 'b'}).toAQL()).to.equal('{"a": b}');
+    expect(new ObjectLiteral({'" pot@to!!! "': 'b'}).toAQL()).to.equal('{" pot@to!!! ": b}');
+  });
+  it('handles dynamic keys', function () {
+    expect(new ObjectLiteral({':a': 'b'}).toAQL()).to.equal('{[a]: b}');
+    expect(new ObjectLiteral({':@a': 'b'}).toAQL()).to.equal('{[@a]: b}');
+    expect(new ObjectLiteral({':`a`': 'b'}).toAQL()).to.equal('{[`a`]: b}');
+    expect(new ObjectLiteral({':`@a`': 'b'}).toAQL()).to.equal('{[`@a`]: b}');
+    expect(new ObjectLiteral({':a.b.c': 'b'}).toAQL()).to.equal('{[a.b.c]: b}');
+    expect(new ObjectLiteral({':a.`b`.c': 'b'}).toAQL()).to.equal('{[a.`b`.c]: b}');
+    expect(new ObjectLiteral({':a@a': 'b'}).toAQL()).to.equal('{[a@a]: b}');
+    expect(new ObjectLiteral({':`a@a`': 'b'}).toAQL()).to.equal('{[`a@a`]: b}');
+  });
+  it('rejects invalid dynamic keys', function () {
+    var values = [
+      {'::a': 'b'},
+      {': a': 'b'},
+      {':-a': 'b'},
+      {':a()': 'b'},
+      {':[a]': 'b'}
+    ];
+    for (var i = 0; i < values.length; i++) {
+      expect(function () {return new ObjectLiteral(values[i]);}).to.throwException(isAqlError);
+    }
   });
   it('wraps Operation values in parentheses', function () {
     var op = new types._Operation();

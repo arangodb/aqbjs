@@ -3,6 +3,14 @@
 var AqlError = require('./errors').AqlError;
 var keywords = require('./assumptions').keywords;
 
+function isQuotedString(str) {
+  return (
+    str.length >= 2 &&
+    str.charAt(0) === str.charAt(str.length - 1) &&
+    str.charAt(0) === '"'
+  );
+}
+
 function wrapAQL(expr) {
   if (
     expr instanceof Operation ||
@@ -37,7 +45,7 @@ function castString(str) {
   if (str.match(NumberLiteral.re)) {
     return autoCastToken(Number(str));
   }
-  if (str.charAt(0) === '"') {
+  if (isQuotedString(str)) {
     return new StringLiteral(JSON.parse(str));
   }
   var match = str.match(RangeExpression.re);
@@ -170,7 +178,20 @@ function ObjectLiteral(value) {
   this.value = {};
   var self = this;
   Object.keys(value).forEach(function (key) {
-    self.value[key] = autoCastToken(value[key]);
+    if (key.charAt(0) === ':') {
+      if (!key.slice(1).match(SimpleReference.re)) {
+        throw new AqlError('Expected key to be a well-formed dynamic property name: ' + key);
+      }
+      self.value['[' + key.slice(1) + ']'] = autoCastToken(value[key]);
+    } else if (
+      !isQuotedString(key) &&
+      !key.match(Identifier.re) &&
+      key !== String(Number(key))
+    ) {
+      self.value[JSON.stringify(key)] = autoCastToken(value[key]);
+    } else {
+      self.value[key] = autoCastToken(value[key]);
+    }
   });
 }
 ObjectLiteral.prototype = new Expression();
@@ -178,11 +199,7 @@ ObjectLiteral.prototype.constructor = ObjectLiteral;
 ObjectLiteral.prototype.toAQL = function () {
   var value = this.value;
   var items = Object.keys(value).map(function (key) {
-    if (key.match(Identifier.re) || key === String(Number(key))) {
-      return key + ': ' + wrapAQL(value[key]);
-    } else {
-      return JSON.stringify(key) + ': ' + wrapAQL(value[key]);
-    }
+    return key + ': ' + wrapAQL(value[key]);
   });
   return '{' + items.join(', ') + '}';
 };

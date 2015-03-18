@@ -38,7 +38,7 @@ function QB(obj) {
     var result = {};
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
-        result[key] = QB(obj[key]);
+        result[JSON.stringify(key)] = QB(obj[key]);
       }
     }
     return new types.ObjectLiteral(result);

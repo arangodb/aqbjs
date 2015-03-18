@@ -126,9 +126,15 @@ Wraps the given value as an AQL String literal.
 
 If the value is not a JavaScript String, it will be converted first.
 
-If the value is already an AQL String, its own value will be wrapped instead.
+If the value is a quoted string, it will be treated as a string literal.
 
 If the value is an object with a *toAQL* method, the result of calling that method will be wrapped instead.
+
+**Examples**
+
+* `23` => `"23"`
+* `"some string"` => `"some string"`
+* `'"some string"'` => `"\"some string\""`
 
 ### List
 
@@ -150,9 +156,25 @@ Wraps the given value as an AQL Object literal.
 
 If the value is not a JavaScript Object, an *AQLError* will be thrown.
 
-If the value is already an AQL List, its own value will be wrapped instead.
+If the value is already an AQL Object, its own value will be wrapped instead.
 
 Any property values that are not already AQL values will be converted automatically.
+
+Any keys that are quoted strings will be treated as string literals.
+
+Any keys that start with the character "`:`" will be treated as dynamic properties and must be well-formed simple references.
+
+Any other keys that need escaping will be quoted if necessary.
+
+If you need to pass in raw JavaScript objects that shouldn't be converted according to these rules, you can use the `qb` function directly instead.
+
+**Examples**
+
+* `qb.obj({'some.name': 'value'})` => `{"some.name": value}`
+* `qb.obj({hello: world})` => `{hello: world}`
+* `qb.obj({'"hello"': world})` => `{"hello": world}`
+* `qb.obj({':dynamic': 'props'})` => `{[dynamic]: props}`
+* `qb.obj({': invalid': 'key'})` => throws an error (` invalid` is not a well-formed reference)
 
 ### Simple Reference
 
@@ -166,7 +188,7 @@ If the value is an *ArangoCollection*, its *name* property will be used instead.
 
 If the value is already an AQL Simple Reference, its value is wrapped instead.
 
-*Examples*
+**Examples**
 
 Valid values:
 
@@ -233,7 +255,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Examples*
+**Examples**
 
 `qb.and(a, b, c, d, e, f)` -> `(a && b && c && d && e && f)`
 
@@ -247,7 +269,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Examples*
+**Examples**
 
 `qb.or(a, b, c, d, e, f)` -> `(a || b || c || d || e || f)`
 
@@ -263,7 +285,7 @@ This function can take any number of arguments.
 
 *Alias:* `qb.plus(a, b)`
 
-*Examples*
+**Examples**
 
 `qb.add(a, b, c, d, e, f)` -> `(a + b + c + d + e + f)`
 
@@ -279,7 +301,7 @@ This function can take any number of arguments.
 
 *Alias:* `qb.minus(a, b)`
 
-*Examples*
+**Examples**
 
 `qb.sub(a, b, c, d, e, f)` -> `(a - b - c - d - e - f)`
 
@@ -295,7 +317,7 @@ This function can take any number of arguments.
 
 *Alias:* `qb.times(a, b)`
 
-*Examples*
+**Examples**
 
 `qb.mul(a, b, c, d, e, f)` -> `(a * b * c * d * e * f)`
 
@@ -309,7 +331,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Examples*
+**Examples**
 
 `qb.div(a, b, c, d, e, f)` -> `(a / b / c / d / e / f)`
 
@@ -323,7 +345,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 This function can take any number of arguments.
 
-*Examples*
+**Examples**
 
 `qb.mod(a, b, c, d, e, f)` -> `(a % b % c % d % e % f)`
 
@@ -421,7 +443,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 For built-in functions, methods with the relevant function name are already provided by the query builder.
 
-*Examples*
+**Examples**
 
 * `qb.fn('MY::USER::FUNC')(1, 2, 3)` -> `MY::USER::FUNC(1, 2, 3)`
 * `qb.fn('hello')()` -> `hello()`
@@ -434,9 +456,9 @@ In addition to the methods documented above, the query builder provides all meth
 
 AQL *Statement* objects have a method *toAQL()* which returns their AQL representation as a JavaScript string.
 
-*Examples*
+**Examples**
 
-```
+```js
 qb.for('doc').in('my_collection').return('doc._key').toAQL()
 // -> FOR doc IN my_collection RETURN doc._key
 ```

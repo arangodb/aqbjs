@@ -96,10 +96,10 @@ describe('QB', function () {
   it('Object -> ObjectLiteral', function () {
     var result = QB({x: 123, y: 'hello'});
     expect(result).to.be.a(types.ObjectLiteral);
-    expect(result.value.x).to.be.an(types.IntegerLiteral);
-    expect(result.value.x.value).to.equal(123);
-    expect(result.value.y).to.be.a(types.StringLiteral);
-    expect(result.value.y.value).to.equal('hello');
+    expect(result.value['"x"']).to.be.an(types.IntegerLiteral);
+    expect(result.value['"x"'].value).to.equal(123);
+    expect(result.value['"y"']).to.be.a(types.StringLiteral);
+    expect(result.value['"y"'].value).to.equal('hello');
   });
   it('NaN throws an error', function () {
     expect(function () {
