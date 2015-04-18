@@ -67,7 +67,7 @@ describe('Query Builder examples', function () {
     + 'UPDATE u WITH {numberOfLogins: 0} IN users',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .update('u').with_({numberOfLogins: 0}).in_('users');
     }
   );
@@ -80,9 +80,9 @@ describe('Query Builder examples', function () {
     + '} IN users',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .update('u').with_({
-        numberOfLogins: qb.add('u.numberOfLogins', 1)
+        numberOfLogins: qb.ref('u.numberOfLogins').add(1)
       }).in_('users');
     }
   );
@@ -96,10 +96,14 @@ describe('Query Builder examples', function () {
     + '} IN users',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .update('u').with_({
         lastLogin: qb.DATE_NOW(),
-        numberOfLogins: qb.if_(qb.HAS('u', '"numberOfLogins"'), qb.add('u.numberOfLogins', 1), 1)
+        numberOfLogins: (
+          qb.HAS('u', '"numberOfLogins"')
+          .then(qb.ref('u.numberOfLogins').add(1))
+          .else_(1)
+        )
       }).in_('users');
     }
   );
@@ -124,18 +128,14 @@ describe('Query Builder examples', function () {
 
   example(
     'FOR u IN users '
-    + 'FILTER ((u.active == true) && ((u.age >= 35) && (u.age <= 37))) '
+    + 'FILTER (((u.active == true) && (u.age >= 35)) && (u.age <= 37)) '
     + 'REMOVE u IN users',
     function () {
       return qb.for_('u').in_('users')
       .filter(
-        qb.and(
-          qb.eq('u.active', true),
-          qb.and(
-            qb.gte('u.age', 35),
-            qb.lte('u.age', 37)
-          )
-        )
+        qb.ref('u.active').eq(true)
+        .and(qb.ref('u.age').gte(35))
+        .and(qb.ref('u.age').lte(37))
       )
       .remove('u').in_('users');
     }
@@ -153,14 +153,14 @@ describe('Query Builder examples', function () {
     function () {
       return qb.for_('i').in_(qb.range(1, 1000))
       .insert({
-        id: qb.add(100000, 'i'),
-        age: qb.add(18, qb.FLOOR(qb.mul(qb.RAND(), 25))),
+        id: qb(100000).add('i'),
+        age: qb(18).add(qb.FLOOR(qb.RAND().times(25))),
         name: qb.CONCAT('test', qb.TO_STRING('i')),
         active: false,
-        gender: qb.if_(
-          qb.eq(qb.mod('i', 2), 0),
-          '"male"',
-          '"female"'
+        gender: (
+          qb.ref('i').mod(2).eq(0)
+          .then('"male"')
+          .else_('"female"')
         )
       }).into('users');
     }
@@ -187,7 +187,7 @@ describe('Query Builder examples', function () {
       .limit(0, 3)
       .return_({
         users: {
-          isActive: qb.if_('u.active', '"yes"', '"no"'),
+          isActive: qb.ref('u.active').then('"yes"').else_('"no"'),
           name: 'u.name'
         }
       });
@@ -202,10 +202,10 @@ describe('Query Builder examples', function () {
     + 'RETURN {age: u.age, name: u.name}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.and(
-        qb.eq('u.active', true),
-        qb.gte('u.age', 30)
-      ))
+      .filter(
+        qb.ref('u.active').eq(true)
+        .and(qb.ref('u.age').gte(30))
+      )
       .sort('u.age', 'DESC')
       .limit(0, 5)
       .return_({
@@ -224,13 +224,13 @@ describe('Query Builder examples', function () {
     + 'RETURN {user: u.name, friendId: f.to}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .limit(0, 4)
       .for_('f').in_('relations')
-      .filter(qb.and(
-        qb.eq('f.type', '"friend"'),
-        qb.eq('f.from', 'u.id')
-      ))
+      .filter(
+        qb.ref('f.type').eq('"friend"')
+        .and(qb.ref('f.from').eq('u.id'))
+      )
       .return_({
         user: 'u.name',
         friendId: 'f.to'
@@ -252,14 +252,14 @@ describe('Query Builder examples', function () {
     + '}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .limit(0, 4)
       .return_({
         user: 'u.name',
-        friendIds: qb.for_('f').in_('relations').filter(qb.and(
-          qb.eq('f.from', 'u.id'),
-          qb.eq('f.type', '"friend"')
-        )).return_('f.to')
+        friendIds: qb.for_('f').in_('relations').filter(
+          qb.ref('f.from').eq('u.id')
+          .and(qb.ref('f.type').eq('"friend"'))
+        ).return_('f.to')
       });
     }
   );
@@ -280,15 +280,15 @@ describe('Query Builder examples', function () {
     + '}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .limit(0, 4)
       .return_({
         user: 'u.name',
-        friendIds: qb.for_('f').in_('relations').filter(qb.and(
-          qb.eq('f.from', 'u.id'),
-          qb.eq('f.type', '"friend"')
-        )).for_('u2').in_('users').filter(
-          qb.eq('f.to', 'u2.id')
+        friendIds: qb.for_('f').in_('relations').filter(
+          qb.ref('f.from').eq('u.id')
+          .and(qb.ref('f.type').eq('"friend"'))
+        ).for_('u2').in_('users').filter(
+          qb.ref('f.to').eq('u2.id')
         ).return_('u2.name')
       });
     }
@@ -303,7 +303,7 @@ describe('Query Builder examples', function () {
     + 'RETURN {age: age, users: usersByAge[*].u.name}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .collect({age: 'u.age'}).into('usersByAge')
       .sort('age', 'DESC').limit(0, 5)
       .return_({
@@ -325,7 +325,7 @@ describe('Query Builder examples', function () {
     + ')}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .collect({age: 'u.age'}).into('usersByAge')
       .sort('age', 'DESC').limit(0, 5)
       .return_({
@@ -343,9 +343,9 @@ describe('Query Builder examples', function () {
     + 'RETURN {ageGroup: ageGroup, gender: gender}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .collect({
-        ageGroup: qb.mul(qb.FLOOR(qb.div('u.age', 5)), 5),
+        ageGroup: qb.FLOOR(qb.ref('u.age').div(5)).times(5),
         gender: 'u.gender'
       }).into('group')
       .sort('ageGroup', 'DESC')
@@ -364,9 +364,9 @@ describe('Query Builder examples', function () {
     + 'RETURN {ageGroup: ageGroup, gender: gender, numUsers: LENGTH(group)}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .collect({
-        ageGroup: qb.mul(qb.FLOOR(qb.div('u.age', 5)), 5),
+        ageGroup: qb.FLOOR(qb.ref('u.age').div(5)).times(5),
         gender: 'u.gender'
       }).into('group')
       .sort('ageGroup', 'DESC')
@@ -389,12 +389,12 @@ describe('Query Builder examples', function () {
     + 'RETURN {ageGroup: ageGroup, numUsers: numUsers, users: group[*].u.name}',
     function () {
       return qb.for_('u').in_('users')
-      .filter(qb.eq('u.active', true))
+      .filter(qb.ref('u.active').eq(true))
       .collect({
-        ageGroup: qb.mul(qb.FLOOR(qb.div('u.age', 5)), 5)
+        ageGroup: qb.FLOOR(qb.ref('u.age').div(5)).times(5)
       }).into('group')
       .let_('numUsers', qb.LENGTH('group'))
-      .filter(qb.gt('numUsers', 2))
+      .filter(qb.ref('numUsers').gt(2))
       .sort('numUsers', 'DESC')
       .limit(0, 3)
       .return_({
