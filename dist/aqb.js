@@ -100,24 +100,25 @@ AqlError.prototype.name = 'AqlError';
 exports.AqlError = AqlError;
 },{}],3:[function(require,module,exports){
 'use strict';
-var AqlError = require('./errors').AqlError, assumptions = require('./assumptions'), types = require('./types'), toArray, warn;
-toArray = Function.prototype.call.bind(Array.prototype.slice);
-warn = function () {
-    if (typeof console !== 'undefined') {
-        return function () {
-            return console.warn.apply(console, arguments);
-        };
-    }
-    try {
-        var cons = require('console');
-        return function () {
-            return cons.warn.apply(cons, arguments);
-        };
-    } catch (err) {
-        return function () {
-        };
-    }
-}();
+var AqlError = require('./errors').AqlError;
+var assumptions = require('./assumptions');
+var types = require('./types');
+var warn = function () {
+        if (typeof console !== 'undefined') {
+            return function () {
+                return console.warn.apply(console, arguments);
+            };
+        }
+        try {
+            var cons = require('console');
+            return function () {
+                return cons.warn.apply(cons, arguments);
+            };
+        } catch (err) {
+            return function () {
+            };
+        }
+    }();
 function QB(obj) {
     if (typeof obj === 'string') {
         return QB.str(obj);
@@ -147,6 +148,16 @@ Object.keys(types._PartialStatement.prototype).forEach(function (key) {
         return;
     QB[key] = types._PartialStatement.prototype[key].bind(null);
 });
+Object.keys(types._Expression.prototype).forEach(function (key) {
+    if (key === 'constructor' || key === 'then')
+        return;
+    QB[key] = function () {
+        return types._Expression.prototype[key].apply(types.autoCastToken(arguments[0]), Array.prototype.slice.call(arguments, 1));
+    };
+});
+QB.if_ = QB['if'] = function (cond, then, otherwise) {
+    return types.autoCastToken(cond).then(then)['else'](otherwise);
+};
 QB.bool = function (value) {
     return new types.BooleanLiteral(value);
 };
@@ -165,12 +176,6 @@ QB.list = function (arr) {
 QB.obj = function (obj) {
     return new types.ObjectLiteral(obj);
 };
-QB.range = function (start, end) {
-    return new types.RangeExpression(start, end);
-};
-QB.get = function (obj, key) {
-    return new types.PropertyAccess(obj, key);
-};
 QB.ref = function (value) {
     if (types.Identifier.re.exec(value)) {
         return new types.Identifier(value);
@@ -179,57 +184,6 @@ QB.ref = function (value) {
 };
 QB.expr = function (value) {
     return new types.RawExpression(value);
-};
-QB.and = function () {
-    return new types.NAryOperation('&&', toArray(arguments));
-};
-QB.or = function () {
-    return new types.NAryOperation('||', toArray(arguments));
-};
-QB.plus = QB.add = function () {
-    return new types.NAryOperation('+', toArray(arguments));
-};
-QB.minus = QB.sub = function () {
-    return new types.NAryOperation('-', toArray(arguments));
-};
-QB.times = QB.mul = function () {
-    return new types.NAryOperation('*', toArray(arguments));
-};
-QB.div = function () {
-    return new types.NAryOperation('/', toArray(arguments));
-};
-QB.mod = function () {
-    return new types.NAryOperation('%', toArray(arguments));
-};
-QB.eq = function (x, y) {
-    return new types.BinaryOperation('==', x, y);
-};
-QB.gt = function (x, y) {
-    return new types.BinaryOperation('>', x, y);
-};
-QB.gte = function (x, y) {
-    return new types.BinaryOperation('>=', x, y);
-};
-QB.lt = function (x, y) {
-    return new types.BinaryOperation('<', x, y);
-};
-QB.lte = function (x, y) {
-    return new types.BinaryOperation('<=', x, y);
-};
-QB.neq = function (x, y) {
-    return new types.BinaryOperation('!=', x, y);
-};
-QB.not = function (x) {
-    return new types.UnaryOperation('!', x);
-};
-QB.neg = function (x) {
-    return new types.UnaryOperation('-', x);
-};
-QB.in_ = QB['in'] = function (x, y) {
-    return new types.BinaryOperation('in', x, y);
-};
-QB.if_ = QB['if'] = function (x, y, z) {
-    return new types.TernaryOperation('?', ':', x, y, z);
 };
 QB.fn = function (functionName, arity) {
     if (typeof arity === 'number') {
@@ -272,6 +226,11 @@ module.exports = QB;
 'use strict';
 var AqlError = require('./errors').AqlError;
 var keywords = require('./assumptions').keywords;
+function toArray(self, args) {
+    var arr = Array.prototype.slice.call(args);
+    arr.unshift(self);
+    return arr;
+}
 function isQuotedString(str) {
     return str.length >= 2 && str.charAt(0) === str.charAt(str.length - 1) && str.charAt(0) === '"';
 }
@@ -326,7 +285,7 @@ function autoCastToken(token) {
         return token;
     }
     var type = typeof token;
-    if (Object.keys(autoCastToken).indexOf(type) === -1) {
+    if (!autoCastToken.hasOwnProperty(type)) {
         throw new AqlError('Invalid AQL value: (' + type + ') ' + token);
     }
     return autoCastToken[type](token);
@@ -337,6 +296,71 @@ autoCastToken.string = castString;
 autoCastToken.object = castObject;
 function Expression() {
 }
+Expression.prototype.range = Expression.prototype.to = function (max) {
+    return new RangeExpression(this, max);
+};
+Expression.prototype.get = function (key) {
+    return new PropertyAccess(this, key);
+};
+Expression.prototype.and = function () {
+    return new NAryOperation('&&', toArray(this, arguments));
+};
+Expression.prototype.or = function () {
+    return new NAryOperation('||', toArray(this, arguments));
+};
+Expression.prototype.add = Expression.prototype.plus = function () {
+    return new NAryOperation('+', toArray(this, arguments));
+};
+Expression.prototype.sub = Expression.prototype.minus = function () {
+    return new NAryOperation('-', toArray(this, arguments));
+};
+Expression.prototype.mul = Expression.prototype.times = function () {
+    return new NAryOperation('*', toArray(this, arguments));
+};
+Expression.prototype.div = function () {
+    return new NAryOperation('/', toArray(this, arguments));
+};
+Expression.prototype.mod = function () {
+    return new NAryOperation('%', toArray(this, arguments));
+};
+Expression.prototype.eq = function (x) {
+    return new BinaryOperation('==', this, x);
+};
+Expression.prototype.gt = function (x) {
+    return new BinaryOperation('>', this, x);
+};
+Expression.prototype.gte = function (x) {
+    return new BinaryOperation('>=', this, x);
+};
+Expression.prototype.lt = function (x) {
+    return new BinaryOperation('<', this, x);
+};
+Expression.prototype.lte = function (x) {
+    return new BinaryOperation('<=', this, x);
+};
+Expression.prototype.neq = function (x) {
+    return new BinaryOperation('!=', this, x);
+};
+Expression.prototype.not = function () {
+    return new UnaryOperation('!', this);
+};
+Expression.prototype.neg = function () {
+    return new UnaryOperation('-', this);
+};
+Expression.prototype.in_ = Expression.prototype['in'] = function (x) {
+    return new BinaryOperation('in', this, x);
+};
+Expression.prototype.then = function (x) {
+    var self = this;
+    var elseFn = function (y) {
+        return new TernaryOperation('?', ':', self, x, y);
+    };
+    return {
+        'else': elseFn,
+        else_: elseFn,
+        otherwise: elseFn
+    };
+};
 function Operation() {
 }
 Operation.prototype = new Expression();
