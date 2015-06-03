@@ -731,6 +731,16 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 * `_.options('opts')` => `OPTIONS opts`
 
+### UPSERT …
+
+#### UPSERT expression1 INSERT expression2
+
+`PartialStatement::upsert(expression1).insert(expression2) : UpsertExpression`
+
+**Examples**
+
+* `_.upsert('x').insert('y')` => `UPSERT x INSERT y`
+
 ### INSERT …
 
 #### INSERT expression INTO collection
