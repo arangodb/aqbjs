@@ -722,6 +722,13 @@ PartialStatement.prototype.remove = function (expr) {
         in_: inFn
     };
 };
+PartialStatement.prototype.upsert = function (upsertExpr) {
+    var self = this, insertFn;
+    insertFn = function (insertExpr) {
+        return new UpsertExpression(self, upsertExpr, insertExpr);
+    };
+    return { insert: insertFn };
+};
 PartialStatement.prototype.insert = function (expr) {
     var self = this, inFn;
     inFn = function (collection) {
@@ -1013,6 +1020,18 @@ RemoveExpression.prototype.returnOld = OptionsExpression.prototype.returnOld;
 RemoveExpression.prototype.toAQL = function () {
     return (this.prev ? this.prev.toAQL() + ' ' : '') + 'REMOVE ' + wrapAQL(this.expr) + ' IN ' + wrapAQL(this.collection);
 };
+function UpsertExpression(prev, upsertExpr, insertExpr) {
+    this.prev = prev;
+    this.upsertExpr = autoCastToken(upsertExpr);
+    this.insertExpr = autoCastToken(insertExpr);
+}
+UpsertExpression.prototype = new Statement();
+UpsertExpression.prototype.constructor = UpsertExpression;
+UpsertExpression.prototype.update = PartialStatement.prototype.update;
+UpsertExpression.prototype.replace = PartialStatement.prototype.replace;
+UpsertExpression.prototype.toAQL = function () {
+    return (this.prev ? this.prev.toAQL() + ' ' : '') + 'UPSERT ' + wrapAQL(this.upsertExpr) + ' INSERT ' + wrapAQL(this.insertExpr);
+};
 function InsertExpression(prev, expr, collection) {
     this.prev = prev;
     this.expr = autoCastToken(expr);
@@ -1080,6 +1099,7 @@ exports.SortExpression = SortExpression;
 exports.LimitExpression = LimitExpression;
 exports.ReturnExpression = ReturnExpression;
 exports.RemoveExpression = RemoveExpression;
+exports.UpsertExpression = UpsertExpression;
 exports.InsertExpression = InsertExpression;
 exports.UpdateExpression = UpdateExpression;
 exports.ReplaceExpression = ReplaceExpression;
