@@ -404,4 +404,17 @@ describe('Query Builder examples', function () {
       });
     }
   );
+
+  example(
+    'UPSERT {ip: "192.168.173.13"} '
+    + 'INSERT {ip: "192.168.173.13", name: "flittard"} '
+    + 'UPDATE {} '
+    + 'IN hosts',
+    function () {
+      return qb.upsert({ip: qb.str('192.168.173.13')})
+      .insert({ip: qb.str('192.168.173.13'), name: qb.str('flittard')})
+      .update({})
+      .in('hosts');
+    }
+  );
 });
