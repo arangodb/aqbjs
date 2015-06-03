@@ -506,7 +506,7 @@ PartialStatement.prototype.update = function (expr) {
     return {into: inFn, 'in': inFn, in_: inFn};
   };
   inFn = function (collection) {
-    return new ReplaceExpression(self, expr, undefined, collection);
+    return new UpdateExpression(self, expr, undefined, collection);
   };
   return {'with': withFn, with_: withFn, into: inFn, 'in': inFn, in_: inFn};
 };
