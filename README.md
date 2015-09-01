@@ -595,7 +595,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### FOR expression IN collection
 
-`PartialStatement::for(expression).in(collection) : Statement`
+`PartialStatement::for(expression).in(collection) : PartialStatement`
 
 *Alias:* `for_(expression).in_(collection)`
 
@@ -605,7 +605,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### LET varname = expression
 
-`PartialStatement::let(varname, expression) : Statement`
+`PartialStatement::let(varname, expression) : PartialStatement`
 
 *Alias:* `let_(varname, expression)`
 
@@ -615,7 +615,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### LET var1 = expr1, var2 = expr2, …, varn = exprn
 
-`PartialStatement::let(definitions) : Statement`
+`PartialStatement::let(definitions) : PartialStatement`
 
 *Alias:* `let_(definitions)`
 
@@ -625,7 +625,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### RETURN expression
 
-`PartialStatement::return(expression) : Statement`
+`PartialStatement::return(expression) : ReturnExpression`
 
 *Alias:* `return_(expression)`
 
@@ -635,13 +635,21 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### FILTER expression
 
-`PartialStatement::filter(expression) : Statement`
+`PartialStatement::filter(expression) : PartialStatement`
 
 **Examples**
 
 * `_.filter(qb.eq('a', 'b'))` => `FILTER a == b`
 
 ### COLLECT …
+
+#### COLLECT WITH COUNT INTO varname
+
+`PartialStatement::collectWithCountInto(varname) : CollectExpression`
+
+**Examples**
+
+* `_.collectWithCountInto('x')` => `COLLECT WITH COUNT INTO x`
 
 #### COLLECT varname = expression
 
@@ -659,33 +667,49 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 * `_.collect({x: 'a', y: 'b'})` => `COLLECT x = a, y = b`
 
+#### … WITH COUNT INTO varname
+
+`CollectExpression::withCountInto(varname) : CollectExpression`
+
+**Examples**
+
+* `_.withCountInto('x')` => `WITH COUNT INTO x`
+
 #### … INTO varname
 
-`CollectExpression::into(varname) : Statement`
+`CollectExpression::into(varname) : CollectExpression`
 
 **Examples**
 
 * `_.into('z')` => `INTO z`
 
-#### … INTO varname COUNT
+##### … KEEP
 
-`CollectExpression::into(varname).count() : Statement`
-
-**Examples**
-
-* `_.into('z').count()` => `INTO z COUNT`
-
-#### … KEEP varname
-
-`CollectExpression::keep(varname) : Statement`
+`CollectExpression::keep() : CollectExpression`
 
 **Examples**
 
-* `_.keep('z')` => `KEEP z`
+* `_.into('z').keep()` => `INTO z KEEP`
+
+#### … INTO varname = expression
+
+`CollectExpression::into(varname, expression) : CollectExpression`
+
+**Examples**
+
+* `_.into('x', 'y')` => `INTO x = y`
+
+#### … OPTIONS options
+
+`CollectExpression::options(options) : CollectExpression`
+
+**Examples**
+
+* `_.options('opts')` => `OPTIONS opts`
 
 ### … SORT args…
 
-`PartialStatement::sort(args…) : Statement`
+`PartialStatement::sort(args…) : PartialStatement`
 
 **Examples**
 
@@ -693,7 +717,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### … LIMIT offset, count
 
-`PartialStatement::limit([offset,] count) : Statement`
+`PartialStatement::limit([offset,] count) : PartialStatement`
 
 **Examples**
 
@@ -717,7 +741,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … LET varname = OLD RETURN varname
 
-`RemoveExpression::returnOld(varname) : Statement`
+`RemoveExpression::returnOld(varname) : ReturnExpression`
 
 **Examples**
 
@@ -725,7 +749,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … OPTIONS options
 
-`RemoveExpression::options(options) : Statement`
+`RemoveExpression::options(options) : RemoveExpression`
 
 **Examples**
 
@@ -733,13 +757,39 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 ### UPSERT …
 
-#### UPSERT expression1 INSERT expression2
+#### UPSERT expression1 INSERT expression2 REPLACE expression3 IN collection
 
-`PartialStatement::upsert(expression1).insert(expression2) : UpsertExpression`
+`PartialStatement::upsert(expression1).insert(expression2).replace(expression3).in(collection) : UpsertExpression`
+
+*Aliases:*
+
+* `….into(collection)`
+* `….in_(collection)`
 
 **Examples**
 
-* `_.upsert('x').insert('y')` => `UPSERT x INSERT y`
+* `_.upsert('x').insert('y').replace('z').in('c')` => `UPSERT x INSERT y REPLACE z IN c`
+
+#### UPSERT expression1 INSERT expression2 UPDATE expression3 IN collection
+
+`PartialStatement::upsert(expression1).insert(expression2).update(expression3).in(collection) : UpsertExpression`
+
+*Aliases:*
+
+* `….into(collection)`
+* `….in_(collection)`
+
+**Examples**
+
+* `_.upsert('x').insert('y').update('z').in('c')` => `UPSERT x INSERT y UPDATE z IN c`
+
+#### … OPTIONS options
+
+`UpsertExpression::options(options) : UpsertExpression`
+
+**Examples**
+
+* `_.options('opts')` => `OPTIONS opts`
 
 ### INSERT …
 
@@ -758,7 +808,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … OPTIONS options
 
-`InsertExpression::options(options) : Statement`
+`InsertExpression::options(options) : InsertExpression`
 
 **Examples**
 
@@ -766,7 +816,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … LET varname = NEW RETURN varname
 
-`InsertExpression::returnNew(varname) : Statement`
+`InsertExpression::returnNew(varname) : ReturnExpression`
 
 **Examples**
 
@@ -805,7 +855,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … OPTIONS options
 
-`UpdateExpression::options(options) : Statement`
+`UpdateExpression::options(options) : UpdateExpression`
 
 **Examples**
 
@@ -813,7 +863,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … LET varname = NEW RETURN varname
 
-`UpdateExpression::returnNew(varname) : Statement`
+`UpdateExpression::returnNew(varname) : ReturnExpression`
 
 **Examples**
 
@@ -821,7 +871,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … LET varname = OLD RETURN varname
 
-`UpdateExpression::returnOld(varname) : Statement`
+`UpdateExpression::returnOld(varname) : ReturnExpression`
 
 **Examples**
 
@@ -860,7 +910,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … OPTIONS options
 
-`ReplaceExpression::options(options) : Statement`
+`ReplaceExpression::options(options) : ReplaceExpression`
 
 **Examples**
 
@@ -868,7 +918,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … LET varname = NEW RETURN varname
 
-`ReplaceExpression::returnOld(varname) : Statement`
+`ReplaceExpression::returnOld(varname) : ReturnExpression`
 
 **Examples**
 
@@ -876,7 +926,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 #### … LET varname = OLD RETURN varname
 
-`ReplaceExpression::returnNew(varname) : Statement`
+`ReplaceExpression::returnNew(varname) : ReturnExpression`
 
 **Examples**
 
