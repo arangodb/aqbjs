@@ -30,7 +30,7 @@ describe('SortExpression', function () {
     ];
     var expr = new SortExpression(null, arr);
     for (var i = 0; i < arr.length; i++) {
-      expect(expr.args[i].constructor).to.equal(ctors[i]);
+      expect(expr._args[i].constructor).to.equal(ctors[i]);
     }
   });
   it('does not accept empty values', function () {
@@ -55,8 +55,8 @@ describe('SortExpression', function () {
   it('accepts ASC/DESC keywords', function () {
     var expr = new SortExpression(null, ['x', 'ASC', 'y', 'z', 'DESC']);
     expect(expr.toAQL()).to.equal('SORT x ASC, y, z DESC');
-    expect(expr.args[1].constructor).to.equal(types.Keyword);
-    expect(expr.args[4].constructor).to.equal(types.Keyword);
+    expect(expr._args[1].constructor).to.equal(types.Keyword);
+    expect(expr._args[4].constructor).to.equal(types.Keyword);
   });
   it('does not accept keywords in unexpected positions', function () {
     var values = [

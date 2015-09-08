@@ -24,8 +24,8 @@ describe('RangeExpression', function () {
     ];
     for (var i = 0; i < arr.length; i++) {
       var expr = new RangeExpression(arr[i], arr[i]);
-      expect(expr.start.constructor).to.equal(ctors[i]);
-      expect(expr.end.constructor).to.equal(ctors[i]);
+      expect(expr._start.constructor).to.equal(ctors[i]);
+      expect(expr._end.constructor).to.equal(ctors[i]);
     }
   });
 });

@@ -25,7 +25,7 @@ describe('StringLiteral', function () {
       {toAQL: function () {return 'yes please';}}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(new StringLiteral(values[i]).value).to.equal(values[i].toAQL());
+      expect(new StringLiteral(values[i])._value).to.equal(values[i].toAQL());
     }
   });
   it('wraps any other value as a string', function () {
@@ -38,7 +38,7 @@ describe('StringLiteral', function () {
       function also() {return this;}
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(new StringLiteral(values[i]).value).to.equal(String(values[i]));
+      expect(new StringLiteral(values[i])._value).to.equal(String(values[i]));
     }
   });
 });

@@ -8,7 +8,7 @@ var expect = require('expect.js'),
 describe('ReturnExpression', function () {
   it('returns a statement', function () {
     var expr = new ReturnExpression(null, 'x');
-    expect(expr).to.be.a(types._Statement);
+    expect(expr).to.be.a(types._Expression);
     expect(expr.toAQL).to.be.a('function');
   });
   it('generates a RETURN statement', function () {
@@ -25,7 +25,7 @@ describe('ReturnExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new ReturnExpression(null, arr[i]).value.constructor).to.equal(ctors[i]);
+      expect(new ReturnExpression(null, arr[i])._value.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation values in parentheses', function () {

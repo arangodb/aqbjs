@@ -24,8 +24,8 @@ describe('PropertyAccess', function () {
     ];
     for (var i = 0; i < arr.length; i++) {
       var expr = new PropertyAccess(arr[i], arr[i]);
-      expect(expr.obj.constructor).to.equal(ctors[i]);
-      expect(expr.key.constructor).to.equal(ctors[i]);
+      expect(expr._obj.constructor).to.equal(ctors[i]);
+      expect(expr._key.constructor).to.equal(ctors[i]);
     }
   });
 });

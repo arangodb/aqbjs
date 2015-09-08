@@ -58,7 +58,7 @@ describe('UnaryOperation', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new UnaryOperation('!', arr[i]).value.constructor).to.equal(ctors[i]);
+      expect(new UnaryOperation('!', arr[i])._value.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation values in parentheses', function () {

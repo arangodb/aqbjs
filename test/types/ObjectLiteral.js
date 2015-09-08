@@ -24,8 +24,8 @@ describe('ObjectLiteral', function () {
   it('wraps objects', function () {
     var obj = {a: 1, b: 2, c: 3};
     var expr = new ObjectLiteral(obj);
-    expect(expr.value).to.be.an(Object);
-    expect(Object.keys(expr.value)).to.eql(Object.keys(obj));
+    expect(expr._value).to.be.an(Object);
+    expect(Object.keys(expr._value)).to.eql(Object.keys(obj));
   });
   it('auto-casts object values', function () {
     var obj = {a: 42, b: 'id', c: 'some.ref', d: '"hello"', e: false, f: null};
@@ -40,7 +40,7 @@ describe('ObjectLiteral', function () {
     var expr = new ObjectLiteral(obj);
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
-        expect(expr.value[key].constructor).to.equal(ctors[key]);
+        expect(expr._value[key].constructor).to.equal(ctors[key]);
       }
     }
   });

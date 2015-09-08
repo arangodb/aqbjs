@@ -12,7 +12,7 @@ var expect = require('expect.js'),
 describe('InsertExpression', function () {
   it('returns a statement', function () {
     var expr = new InsertExpression(null, 'x', 'y');
-    expect(expr).to.be.a(types._Statement);
+    expect(expr).to.be.a(types._PartialStatement);
     expect(expr.toAQL).to.be.a('function');
   });
   it('generates an INSERT statement', function () {
@@ -29,7 +29,7 @@ describe('InsertExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new InsertExpression(null, arr[i], 'y').expr.constructor).to.equal(ctors[i]);
+      expect(new InsertExpression(null, arr[i], 'y')._expr.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation expressions in parentheses', function () {
@@ -58,7 +58,7 @@ describe('InsertExpression', function () {
       '__cRaZy__'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(new InsertExpression(null, 'x', values[i]).collection.toAQL()).to.equal(values[i]);
+      expect(new InsertExpression(null, 'x', values[i])._collection.toAQL()).to.equal(values[i]);
     }
   });
   it('does not accept malformed strings as collection names', function () {
@@ -97,21 +97,21 @@ describe('InsertExpression', function () {
   });
   describe('options', function () {
     var expr = new InsertExpression(null, 'x', 'y');
-    it('returns an OptionsExpression', function () {
-      var optExpr = expr.options('a');
-      expect(optExpr).to.be.a(types._OptionsExpression);
-      expect(optExpr.toAQL).to.be.a('function');
-      expect(optExpr.opts.value).to.equal('a');
+    it('returns a new InsertExpression', function () {
+      var optExpr = expr.options({a: 'b'});
+      expect(optExpr).to.be.a(types.InsertExpression);
+      expect(optExpr.toAQL()).to.equal('INSERT x INTO y OPTIONS {a: b}');
     });
   });
   describe('returnNew', function () {
     var expr = new InsertExpression(null, 'x', 'y');
-    it('returns a LetReturnExpression', function () {
+    it('returns a LET RETURN NEW', function () {
       var rtrnExpr = expr.returnNew('a');
-      expect(rtrnExpr).to.be.a(types._LetReturnExpression);
-      expect(rtrnExpr.toAQL).to.be.a('function');
-      expect(rtrnExpr.varname.value).to.equal('a');
-      expect(rtrnExpr.keyword.value).to.equal('NEW');
+      expect(rtrnExpr).to.be.a(types.ReturnExpression);
+      expect(rtrnExpr._value._value).to.equal('a');
+      expect(rtrnExpr._prev).to.be.a(types.LetExpression);
+      rtrnExpr._prev._prev = null;
+      expect(rtrnExpr.toAQL()).to.equal('LET a = `NEW` RETURN a');
     });
   });
 });
