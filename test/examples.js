@@ -417,4 +417,21 @@ describe('Query Builder examples', function () {
       .in('hosts');
     }
   );
+
+  example(
+    'UPSERT {ip: "192.168.173.13"} '
+    + 'INSERT {ip: "192.168.173.13", name: "flittard"} '
+    + 'UPDATE {} '
+    + 'IN hosts '
+    + 'LET isNewInstance = (`OLD` ? false : true) '
+    + 'RETURN {doc: `NEW`, isNewInstance: isNewInstance}',
+    function () {
+      return qb.upsert({ip: qb.str('192.168.173.13')})
+      .insert({ip: qb.str('192.168.173.13'), name: qb.str('flittard')})
+      .update({})
+      .in('hosts')
+      .let('isNewInstance', qb.ref('OLD').then(false).else(true))
+      .return({doc: 'NEW', isNewInstance: 'isNewInstance'});
+    }
+  )
 });
