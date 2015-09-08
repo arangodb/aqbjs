@@ -94,7 +94,7 @@ autoCastToken.object = castObject;
 
 function Definitions(dfns) {
   if (dfns instanceof Definitions) {
-    dfns = dfns.dfns;
+    dfns = dfns._dfns;
   }
   this._dfns = [];
   var self = this;
