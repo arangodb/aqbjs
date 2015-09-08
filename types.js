@@ -175,7 +175,7 @@ Expression.prototype.not = function () {
 Expression.prototype.neg = function () {
   return new UnaryOperation('-', this);
 };
-Expression.prototype.in_ = Expression.prototype.in = function (x) {
+Expression.prototype.in = function (x) {
   return new BinaryOperation('in', this, x);
 };
 Expression.prototype.then = function (x) {
@@ -192,15 +192,17 @@ Operation.prototype = new Expression();
 Operation.prototype.constructor = Operation;
 
 function RawExpression(value) {
-  if (value && value instanceof RawExpression) {value = value.value;}
+  if (value && value instanceof RawExpression) value = value._value;
   this._value = value;
 }
 RawExpression.prototype = new Expression();
 RawExpression.prototype.constructor = RawExpression;
-RawExpression.prototype.toAQL = function () {return String(this._value);};
+RawExpression.prototype.toAQL = function () {
+  return String(this._value);
+};
 
 function NullLiteral(value) {
-  if (value && value instanceof NullLiteral) {value = value.value;}
+  if (value && value instanceof NullLiteral) value = value._value;
   if (value !== null && value !== undefined) {
     throw new AqlError('Expected value to be null: ' + value);
   }
@@ -208,21 +210,25 @@ function NullLiteral(value) {
 }
 NullLiteral.prototype = new Expression();
 NullLiteral.prototype.constructor = NullLiteral;
-NullLiteral.prototype.toAQL = function () {return 'null';};
+NullLiteral.prototype.toAQL = function () {
+  return 'null';
+};
 
 function BooleanLiteral(value) {
-  if (value && value instanceof BooleanLiteral) {value = value.value;}
+  if (value && value instanceof BooleanLiteral) value = value._value;
   this._value = Boolean(value);
 }
 BooleanLiteral.prototype = new Expression();
 BooleanLiteral.prototype.constructor = BooleanLiteral;
-BooleanLiteral.prototype.toAQL = function () {return String(this._value);};
+BooleanLiteral.prototype.toAQL = function () {
+  return String(this._value);
+};
 
 function NumberLiteral(value) {
   if (value && (
     value instanceof NumberLiteral ||
     value instanceof IntegerLiteral
-  )) {value = value.value;}
+  )) value = value._value;
   this._value = Number(value);
   if (!isValidNumber(this._value)) {
     throw new AqlError('Expected value to be a finite number: ' + value);
@@ -231,13 +237,15 @@ function NumberLiteral(value) {
 NumberLiteral.re = /^[-+]?[0-9]+(\.[0-9]+)?$/;
 NumberLiteral.prototype = new Expression();
 NumberLiteral.prototype.constructor = NumberLiteral;
-NumberLiteral.prototype.toAQL = function () {return String(this._value);};
+NumberLiteral.prototype.toAQL = function () {
+  return String(this._value);
+};
 
 function IntegerLiteral(value) {
   if (value && (
     value instanceof NumberLiteral ||
     value instanceof IntegerLiteral
-  )) {value = value.value;}
+  )) value = value._value;
   this._value = Number(value);
   if (!isValidNumber(this._value) || Math.floor(this._value) !== this._value) {
     throw new AqlError('Expected value to be a finite integer: ' + value);
@@ -245,19 +253,23 @@ function IntegerLiteral(value) {
 }
 IntegerLiteral.prototype = new Expression();
 IntegerLiteral.prototype.constructor = IntegerLiteral;
-IntegerLiteral.prototype.toAQL = function () {return String(this._value);};
+IntegerLiteral.prototype.toAQL = function () {
+  return String(this._value);
+};
 
 function StringLiteral(value) {
-  if (value && value instanceof StringLiteral) {value = value.value;}
-  if (value && typeof value.toAQL === 'function') {value = value.toAQL();}
+  if (value && value instanceof StringLiteral) value = value._value;
+  if (value && typeof value.toAQL === 'function') value = value.toAQL();
   this._value = String(value);
 }
 StringLiteral.prototype = new Expression();
 StringLiteral.prototype.constructor = StringLiteral;
-StringLiteral.prototype.toAQL = function () {return JSON.stringify(this._value);};
+StringLiteral.prototype.toAQL = function () {
+  return JSON.stringify(this._value);
+};
 
 function ListLiteral(value) {
-  if (value && value instanceof ListLiteral) {value = value.value;}
+  if (value && value instanceof ListLiteral) value = value._value;
   if (!value || !Array.isArray(value)) {
     throw new AqlError('Expected value to be an array: ' + value);
   }
@@ -271,7 +283,7 @@ ListLiteral.prototype.toAQL = function () {
 };
 
 function ObjectLiteral(value) {
-  if (value && value instanceof ObjectLiteral) {value = value.value;}
+  if (value && value instanceof ObjectLiteral) value = value._value;
   if (!value || typeof value !== 'object') {
     throw new AqlError('Expected value to be an object: ' + value);
   }
@@ -326,7 +338,7 @@ PropertyAccess.prototype.toAQL = function () {
 };
 
 function Keyword(value) {
-  if (value && value instanceof Keyword) {value = value.value;}
+  if (value && value instanceof Keyword) value = value._value;
   if (!value || typeof value !== 'string') {
     throw new AqlError('Expected value to be a string: ' + value);
   }
@@ -347,7 +359,7 @@ function Identifier(value) {
     if (value.constructor && value.constructor.name === 'ArangoCollection') {
       value = value.name();
     } else if (value instanceof Identifier) {
-      value = value.value;
+      value = value._value;
     }
   }
   if (!value || typeof value !== 'string') {
@@ -374,7 +386,7 @@ function SimpleReference(value) {
     if (value.constructor && value.constructor.name === 'ArangoCollection') {
       value = value.name();
     } else if (value instanceof SimpleReference) {
-      value = value.value;
+      value = value._value;
     }
   }
   if (!value || typeof value !== 'string') {
@@ -390,7 +402,7 @@ SimpleReference.prototype = new Expression();
 SimpleReference.prototype.constructor = SimpleReference;
 SimpleReference.prototype.toAQL = function () {
   var value = String(this._value);
-  var tokens = value.split('.').map(function (token, i) {
+  var tokens = value.split('.').map(function (token) {
     if (token.charAt(0) !== '`' && (keywords.indexOf(token.toLowerCase()) !== -1 || token.indexOf('-') !== -1)) {
       return '`' + token + '`';
     }
@@ -486,16 +498,19 @@ FunctionCall.prototype.toAQL = function () {
   return this._functionName + '(' + args.join(', ') + ')';
 };
 
-function ReturnExpression(prev, value) {
+function ReturnExpression(prev, value, distinct) {
   this._prev = prev;
   this._value = autoCastToken(value);
+  this._distinct = distinct;
 }
 ReturnExpression.prototype = new Expression();
 ReturnExpression.prototype.constructor = ReturnExpression;
 ReturnExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
-    'RETURN ' + wrapAQL(this._value)
+    'RETURN' +
+    (this.distinct ? ' DISTINCT' : '') +
+    ' ' + wrapAQL(this._value)
   );
 };
 
@@ -508,7 +523,9 @@ PartialStatement.prototype.for = function (varname) {
   };
   return {in: inFn, in_: inFn};
 };
-PartialStatement.prototype.filter = function (expr) {return new FilterExpression(this, expr);};
+PartialStatement.prototype.filter = function (expr) {
+  return new FilterExpression(this, expr);
+};
 PartialStatement.prototype.let = function (varname, expr) {
   var dfns = expr === undefined ? varname : [[varname, expr]];
   return new LetExpression(this, dfns);
@@ -524,8 +541,15 @@ PartialStatement.prototype.sort = function () {
   var args = Array.prototype.slice.call(arguments);
   return new SortExpression(this, args);
 };
-PartialStatement.prototype.limit = function (x, y) {return new LimitExpression(this, x, y);};
-PartialStatement.prototype.return = function (x) {return new ReturnExpression(this, x);};
+PartialStatement.prototype.limit = function (x, y) {
+  return new LimitExpression(this, x, y);
+};
+PartialStatement.prototype.return = function (x) {
+  return new ReturnExpression(this, x, false);
+};
+PartialStatement.prototype.returnDistinct = function (x) {
+  return new ReturnExpression(this, x, true);
+};
 PartialStatement.prototype.remove = function (expr) {
   var self = this, inFn;
   inFn = function (collection) {
@@ -591,10 +615,6 @@ PartialStatement.prototype.replace = function (expr) {
   };
   return {'with': withFn, with_: withFn, into: inFn, in: inFn, in_: inFn};
 };
-
-PartialStatement.prototype.for_ = PartialStatement.prototype.for;
-PartialStatement.prototype.let_ = PartialStatement.prototype.let;
-PartialStatement.prototype.return_ = PartialStatement.prototype.return;
 
 function ForExpression(prev, varname, expr) {
   this._prev = prev;
@@ -736,7 +756,7 @@ SortExpression.prototype = new PartialStatement();
 SortExpression.prototype.constructor = SortExpression;
 SortExpression.prototype.toAQL = function () {
   var args = [], j = 0;
-  this._args.forEach(function (arg, i) {
+  this._args.forEach(function (arg) {
     if (arg instanceof Keyword) {
       args[j] += ' ' + arg.toAQL();
     } else {
@@ -784,7 +804,9 @@ function RemoveExpression(prev, expr, collection, options) {
 }
 RemoveExpression.prototype = new PartialStatement();
 RemoveExpression.prototype.constructor = RemoveExpression;
-RemoveExpression.prototype.returnOld = function (x) {return this.let(x, 'OLD').return(x);};
+RemoveExpression.prototype.returnOld = function (x) {
+  return this.let(x, 'OLD').return(x);
+};
 RemoveExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
@@ -817,8 +839,12 @@ function UpsertExpression(prev, upsertExpr, insertExpr, replace, updateOrReplace
 }
 UpsertExpression.prototype = new PartialStatement();
 UpsertExpression.prototype.constructor = UpsertExpression;
-UpsertExpression.prototype.returnNew = function (x) {return this.let(x, 'NEW').return(x);};
-UpsertExpression.prototype.returnOld = function (x) {return this.let(x, 'OLD').return(x);};
+UpsertExpression.prototype.returnNew = function (x) {
+  return this.let(x, 'NEW').return(x);
+};
+UpsertExpression.prototype.returnOld = function (x) {
+  return this.let(x, 'OLD').return(x);
+};
 UpsertExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
@@ -842,7 +868,9 @@ function InsertExpression(prev, expr, collection, options) {
 }
 InsertExpression.prototype = new PartialStatement();
 InsertExpression.prototype.constructor = InsertExpression;
-InsertExpression.prototype.returnNew = function (x) {return this.let(x, 'NEW').return(x);};
+InsertExpression.prototype.returnNew = function (x) {
+  return this.let(x, 'NEW').return(x);
+};
 InsertExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
@@ -865,8 +893,12 @@ function UpdateExpression(prev, expr, withExpr, collection, options) {
 }
 UpdateExpression.prototype = new PartialStatement();
 UpdateExpression.prototype.constructor = UpdateExpression;
-UpdateExpression.prototype.returnNew = function (x) {return this.let(x, 'NEW').return(x);};
-UpdateExpression.prototype.returnOld = function (x) {return this.let(x, 'OLD').return(x);};
+UpdateExpression.prototype.returnNew = function (x) {
+  return this.let(x, 'NEW').return(x);
+};
+UpdateExpression.prototype.returnOld = function (x) {
+  return this.let(x, 'OLD').return(x);
+};
 UpdateExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
@@ -890,8 +922,12 @@ function ReplaceExpression(prev, expr, withExpr, collection, options) {
 }
 ReplaceExpression.prototype = new PartialStatement();
 ReplaceExpression.prototype.constructor = ReplaceExpression;
-ReplaceExpression.prototype.returnNew = function (x) {return this.let(x, 'NEW').return(x);};
-ReplaceExpression.prototype.returnOld = function (x) {return this.let(x, 'OLD').return(x);};
+ReplaceExpression.prototype.returnNew = function (x) {
+  return this.let(x, 'NEW').return(x);
+};
+ReplaceExpression.prototype.returnOld = function (x) {
+  return this.let(x, 'OLD').return(x);
+};
 ReplaceExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
