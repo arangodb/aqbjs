@@ -216,7 +216,8 @@ var AqlError = require('./errors').AqlError;
 var keywords = require('./assumptions').keywords;
 function toArray(self, args) {
     var arr = Array.prototype.slice.call(args);
-    arr.unshift(self);
+    if (self)
+        arr.unshift(self);
     return arr;
 }
 function isQuotedString(str) {
@@ -323,8 +324,8 @@ function Expression() {
 Expression.prototype.range = Expression.prototype.to = function (max) {
     return new RangeExpression(this, max);
 };
-Expression.prototype.get = function (key) {
-    return new PropertyAccess(this, key);
+Expression.prototype.get = function () {
+    return new PropertyAccess(this, toArray(null, arguments));
 };
 Expression.prototype.and = function () {
     return new NAryOperation('&&', toArray(this, arguments));
@@ -515,14 +516,18 @@ RangeExpression.prototype.constructor = RangeExpression;
 RangeExpression.prototype.toAQL = function () {
     return wrapAQL(this._start) + '..' + wrapAQL(this._end);
 };
-function PropertyAccess(obj, key) {
+function PropertyAccess(obj, keys) {
     this._obj = autoCastToken(obj);
-    this._key = autoCastToken(key);
+    this._keys = keys.map(function (key) {
+        return autoCastToken(key);
+    });
 }
 PropertyAccess.prototype = new Expression();
 PropertyAccess.prototype.constructor = PropertyAccess;
 PropertyAccess.prototype.toAQL = function () {
-    return wrapAQL(this._obj) + '[' + wrapAQL(this._key) + ']';
+    return wrapAQL(this._obj) + this._keys.map(function (key) {
+        return '[' + wrapAQL(key) + ']';
+    }).join('');
 };
 function Keyword(value) {
     if (value && value instanceof Keyword)
