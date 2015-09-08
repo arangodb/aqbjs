@@ -14,6 +14,9 @@ describe('ReturnExpression', function () {
   it('generates a RETURN statement', function () {
     expect(new ReturnExpression(null, 'x').toAQL()).to.equal('RETURN x');
   });
+  it('generates a RETURN DISTINCT statement', function () {
+    expect(new ReturnExpression(null, 'x', true).toAQL()).to.equal('RETURN DISTINCT x');
+  });
   it('auto-casts values', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
     var ctors = [

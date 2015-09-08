@@ -690,7 +690,7 @@ function ReturnExpression(prev, value, distinct) {
 ReturnExpression.prototype = new Expression();
 ReturnExpression.prototype.constructor = ReturnExpression;
 ReturnExpression.prototype.toAQL = function () {
-    return (this._prev ? this._prev.toAQL() + ' ' : '') + 'RETURN' + (this.distinct ? ' DISTINCT' : '') + ' ' + wrapAQL(this._value);
+    return (this._prev ? this._prev.toAQL() + ' ' : '') + 'RETURN' + (this._distinct ? ' DISTINCT' : '') + ' ' + wrapAQL(this._value);
 };
 function PartialStatement() {
 }

@@ -509,7 +509,7 @@ ReturnExpression.prototype.toAQL = function () {
   return (
     (this._prev ? this._prev.toAQL() + ' ' : '') +
     'RETURN' +
-    (this.distinct ? ' DISTINCT' : '') +
+    (this._distinct ? ' DISTINCT' : '') +
     ' ' + wrapAQL(this._value)
   );
 };
