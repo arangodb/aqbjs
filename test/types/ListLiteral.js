@@ -24,8 +24,8 @@ describe('ListLiteral', function () {
   it('wraps arrays', function () {
     var arr = [1, 2, 3, 4];
     var expr = new ListLiteral(arr);
-    expect(expr.value).to.be.an(Array);
-    expect(expr.value.length).to.equal(arr.length);
+    expect(expr._value).to.be.an(Array);
+    expect(expr._value.length).to.equal(arr.length);
   });
   it('auto-casts array values', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
@@ -39,7 +39,7 @@ describe('ListLiteral', function () {
     ];
     var expr = new ListLiteral(arr);
     for (var i = 0; i < arr.length; i++) {
-      expect(expr.value[i].constructor).to.equal(ctors[i]);
+      expect(expr._value[i].constructor).to.equal(ctors[i]);
     }
   });
   it('does not accept non-array values', function () {

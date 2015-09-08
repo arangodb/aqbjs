@@ -29,7 +29,7 @@ describe('ForExpression', function () {
       '__cRaZy__'
     ];
     for (var i = 0; i < values.length; i++) {
-      expect(new ForExpression(null, values[i], 'y').varname.toAQL()).to.equal(values[i]);
+      expect(new ForExpression(null, values[i], 'y')._varname.toAQL()).to.equal(values[i]);
     }
   });
   it('does not accept malformed strings as variable names', function () {
@@ -72,7 +72,7 @@ describe('ForExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new ForExpression(null, 'x', arr[i]).expr.constructor).to.equal(ctors[i]);
+      expect(new ForExpression(null, 'x', arr[i])._expr.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation expressions in parentheses', function () {

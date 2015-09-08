@@ -59,8 +59,8 @@ describe('NAryOperation', function () {
     ];
     for (var i = 0; i < arr.length; i++) {
       var op = new NAryOperation('+', [arr[i], arr[i]]);
-      expect(op.values[0].constructor).to.equal(ctors[i]);
-      expect(op.values[1].constructor).to.equal(ctors[i]);
+      expect(op._values[0].constructor).to.equal(ctors[i]);
+      expect(op._values[1].constructor).to.equal(ctors[i]);
     }
   });
   it('allows an arbitrary number of values', function () {

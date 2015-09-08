@@ -78,7 +78,7 @@ describe('FunctionCall', function () {
     ];
     var expr = new FunctionCall('hello', arr);
     for (var i = 0; i < arr.length; i++) {
-      expect(expr.args[i].constructor).to.equal(ctors[i]);
+      expect(expr._args[i].constructor).to.equal(ctors[i]);
     }
   });
   it('does not accept truthy non-array argument arrays', function () {

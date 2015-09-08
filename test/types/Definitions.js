@@ -13,9 +13,9 @@ describe('Definitions', function () {
   it('wraps object assignments', function () {
     var obj = {a: 1, b: 2, c: 3};
     var expr = new Definitions(obj);
-    expect(expr.dfns).to.be.an('array');
-    for (var i = 0; i < expr.dfns.length; i++) {
-      expect(obj[expr.dfns[i][0].value]).to.equal(expr.dfns[i][1].value);
+    expect(expr._dfns).to.be.an('array');
+    for (var i = 0; i < expr._dfns.length; i++) {
+      expect(obj[expr._dfns[i][0]._value]).to.equal(expr._dfns[i][1]._value);
     }
   });
   it('accepts array assignments', function () {
@@ -25,7 +25,7 @@ describe('Definitions', function () {
     expect(function () {return new Definitions({});}).to.throwException(isAqlError);
   });
   it('auto-casts assignment values', function () {
-    expect(new Definitions({a: 42}).dfns[0][1].constructor).to.equal(types.IntegerLiteral);
+    expect(new Definitions({a: 42})._dfns[0][1].constructor).to.equal(types.IntegerLiteral);
     var dfns = [['a', 42], ['b', 'id'], ['c', 'some.ref'], ['d', '"hello"'], ['e', false], ['f', null]];
     var ctors = [
       types.IntegerLiteral,
@@ -37,7 +37,7 @@ describe('Definitions', function () {
     ];
     var expr = new Definitions(dfns);
     for (var i = 0; i < dfns.length; i++) {
-      expect(expr.dfns[i][1].constructor).to.equal(ctors[i]);
+      expect(expr._dfns[i][1].constructor).to.equal(ctors[i]);
     }
   });
   it('does not accept non-object assignments', function () {

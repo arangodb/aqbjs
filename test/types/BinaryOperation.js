@@ -59,8 +59,8 @@ describe('BinaryOperation', function () {
     ];
     for (var i = 0; i < arr.length; i++) {
       var op = new BinaryOperation('+', arr[i], arr[i]);
-      expect(op.value1.constructor).to.equal(ctors[i]);
-      expect(op.value2.constructor).to.equal(ctors[i]);
+      expect(op._value1.constructor).to.equal(ctors[i]);
+      expect(op._value2.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation values in parentheses', function () {

@@ -25,7 +25,7 @@ describe('FilterExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new FilterExpression(null, arr[i]).expr.constructor).to.equal(ctors[i]);
+      expect(new FilterExpression(null, arr[i])._expr.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation values in parentheses', function () {

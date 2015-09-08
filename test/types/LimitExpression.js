@@ -15,9 +15,9 @@ describe('LimitExpression', function () {
     expect(new LimitExpression(null, 'x', 'y').toAQL()).to.equal('LIMIT x, y');
   });
   it('treats the offset as optional', function () {
-    expect(new LimitExpression(null, 'x', 'y').offset.value).to.equal('x');
-    expect(new LimitExpression(null, 'x', 'y').count.value).to.equal('y');
-    expect(new LimitExpression(null, 'y').count.value).to.equal('y');
+    expect(new LimitExpression(null, 'x', 'y')._offset._value).to.equal('x');
+    expect(new LimitExpression(null, 'x', 'y')._count._value).to.equal('y');
+    expect(new LimitExpression(null, 'y')._count._value).to.equal('y');
   });
   it('auto-casts offsets', function () {
     var arr = [42, 'id', 'some.ref', '"hello"', false, null];
@@ -30,7 +30,7 @@ describe('LimitExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new LimitExpression(null, arr[i], 'y').offset.constructor).to.equal(ctors[i]);
+      expect(new LimitExpression(null, arr[i], 'y')._offset.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation offsets in parentheses', function () {
@@ -59,7 +59,7 @@ describe('LimitExpression', function () {
       types.NullLiteral
     ];
     for (var i = 0; i < arr.length; i++) {
-      expect(new LimitExpression(null, 'x', arr[i]).count.constructor).to.equal(ctors[i]);
+      expect(new LimitExpression(null, 'x', arr[i])._count.constructor).to.equal(ctors[i]);
     }
   });
   it('wraps Operation counts in parentheses', function () {

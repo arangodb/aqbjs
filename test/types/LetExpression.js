@@ -19,7 +19,7 @@ describe('LetExpression', function () {
     expect(new LetExpression(null, {x: 'y'}).toAQL()).to.equal('LET x = y');
   });
   it('auto-casts assignment values', function () {
-    expect(new LetExpression(null, {a: 42}).dfns.dfns[0][1].constructor).to.equal(types.IntegerLiteral);
+    expect(new LetExpression(null, {a: 42})._dfns._dfns[0][1].constructor).to.equal(types.IntegerLiteral);
     var dfns = [['a', 42], ['b', 'id'], ['c', 'some.ref'], ['d', '"hello"'], ['e', false], ['f', null]];
     var ctors = [
       types.IntegerLiteral,
@@ -31,7 +31,7 @@ describe('LetExpression', function () {
     ];
     var expr = new LetExpression(null, dfns);
     for (var i = 0; i < dfns.length; i++) {
-      expect(expr.dfns.dfns[i][1].constructor).to.equal(ctors[i]);
+      expect(expr._dfns._dfns[i][1].constructor).to.equal(ctors[i]);
     }
   });
   it('accepts array assignments', function () {
