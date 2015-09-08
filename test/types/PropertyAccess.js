@@ -7,7 +7,7 @@ var expect = require('expect.js'),
 
 describe('PropertyAccess', function () {
   it('returns an expression', function () {
-    var expr = new PropertyAccess('a', 'b');
+    var expr = new PropertyAccess('a', ['b']);
     expect(expr).to.be.an(types._Expression);
     expect(expr.toAQL).to.be.a('function');
   });
@@ -23,9 +23,9 @@ describe('PropertyAccess', function () {
       types.RangeExpression
     ];
     for (var i = 0; i < arr.length; i++) {
-      var expr = new PropertyAccess(arr[i], arr[i]);
+      var expr = new PropertyAccess(arr[i], [arr[i]]);
       expect(expr._obj.constructor).to.equal(ctors[i]);
-      expect(expr._key.constructor).to.equal(ctors[i]);
+      expect(expr._keys[0].constructor).to.equal(ctors[i]);
     }
   });
 });

@@ -433,5 +433,12 @@ describe('Query Builder examples', function () {
       .let('isNewInstance', qb.ref('OLD').then(false).else(true))
       .return({doc: 'NEW', isNewInstance: 'isNewInstance'});
     }
-  )
+  );
+
+  example(
+    'foo[1][2][3]',
+    function () {
+      return qb.ref('foo').get(1, 2, 3);
+    }
+  );
 });
