@@ -603,7 +603,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 **Examples**
 
-* `_.let('foo', 23)` => `LET foo = 23
+* `_.let('foo', 23)` => `LET foo = 23`
 
 ### LET var1 = expr1, var2 = expr2, …, varn = exprn
 
