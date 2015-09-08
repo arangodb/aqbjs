@@ -116,7 +116,6 @@ If the value does not represent a finite integer, an *AQLError* will be thrown.
 
 If the value is already an AQL Number or AQL Integer, its own value will be wrapped instead.
 
-*Alias:* `qb.int_(value)`
 
 ### String
 
@@ -503,7 +502,6 @@ OR:
 
 If the values are not already AQL values, they will be converted automatically.
 
-*Aliases:* `qb.in_(a, b)`
 
 **Examples**
 
@@ -553,11 +551,7 @@ OR:
 
 If the values are not already AQL values, they will be converted automatically.
 
-*Aliases:*
-
-* `qb.if_(condition, thenDo, elseDo)`
-* `qbValue.then(thenDo).else_(elseDo)
-* `qbValue.then(thenDo).otherwise(elseDo)`
+*Alias:* `qbValue.then(thenDo).otherwise(elseDo)`
 
 **Examples**
 
@@ -597,7 +591,6 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::for(expression).in(collection) : PartialStatement`
 
-*Alias:* `for_(expression).in_(collection)`
 
 **Examples**
 
@@ -607,7 +600,6 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::let(varname, expression) : PartialStatement`
 
-*Alias:* `let_(varname, expression)`
 
 **Examples**
 
@@ -617,7 +609,6 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::let(definitions) : PartialStatement`
 
-*Alias:* `let_(definitions)`
 
 **Examples**
 
@@ -627,11 +618,18 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::return(expression) : ReturnExpression`
 
-*Alias:* `return_(expression)`
 
 **Examples**
 
 * `_.return('x')` => `RETURN x`
+
+### RETURN DISTINCT expression
+
+`PartialStatement::returnDistinct(expression) : ReturnExpression`
+
+**Examples**
+
+* `_.returnDistinct('x')` => `RETURN DISTINCT x`
 
 ### FILTER expression
 
@@ -730,10 +728,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::remove(expression).in(collection) : RemoveExpression`
 
-*Aliases:*
-
-* `remove(expression).in_(collection)`
-* `remove(expression).into(collection)`
+*Alias:* `remove(expression).into(collection)`
 
 **Examples**
 
@@ -761,10 +756,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::upsert(expression1).insert(expression2).replace(expression3).in(collection) : UpsertExpression`
 
-*Aliases:*
-
-* `….into(collection)`
-* `….in_(collection)`
+*Alias:* `….into(collection)`
 
 **Examples**
 
@@ -774,10 +766,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::upsert(expression1).insert(expression2).update(expression3).in(collection) : UpsertExpression`
 
-*Aliases:*
-
-* `….into(collection)`
-* `….in_(collection)`
+*Alias:* `….into(collection)`
 
 **Examples**
 
@@ -797,10 +786,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::insert(expression).into(collection) : InsertExpression`
 
-*Aliases:*
-
-* `insert(expression).in(collection)`
-* `insert(expression).in_(collection)`
+*Alias:* `insert(expression).in(collection)`
 
 **Examples**
 
@@ -828,10 +814,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::update(expression).in(collection) : UpdateExpression`
 
-*Aliases:*
-
-* `update(expression).in_(collection)`
-* `update(expression).into(collection)`
+*Alias:* `update(expression).into(collection)`
 
 **Examples**
 
@@ -841,13 +824,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::update(expression1).with(expression2).in(collection) : UpdateExpression`
 
-*Aliases:*
-
-* `update(expression1).with(expression2).in_(collection)`
-* `update(expression1).with(expression2).into(collection)`
-* `update(expression1).with_(expression2).in(collection)`
-* `update(expression1).with_(expression2).in_(collection)`
-* `update(expression1).with_(expression2).into(collection)`
+*Alias:* `update(expression1).with(expression2).into(collection)`
 
 **Examples**
 
@@ -883,10 +860,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::replace(expression).in(collection) : ReplaceExpression`
 
-*Aliases:*
-
-* `replace(expression).in_(collection)`
-* `replace(expression).into(collection)`
+*Alias:* `replace(expression).into(collection)`
 
 **Examples**
 
@@ -896,13 +870,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 `PartialStatement::replace(expression1).with(expression2).in(collection) : ReplaceExpression`
 
-*Aliases:*
-
-* `replace(expression1).with(expression2).in_(collection)`
-* `replace(expression1).with(expression2).into(collection)`
-* `replace(expression1).with_(expression2).in(collection)`
-* `replace(expression1).with_(expression2).in_(collection)`
-* `replace(expression1).with_(expression2).into(collection)`
+*Alias:* `replace(expression1).with(expression2).into(collection)`
 
 **Examples**
 
