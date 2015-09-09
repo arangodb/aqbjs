@@ -81,16 +81,19 @@ describe('CollectExpression', function () {
       expect(expr2.toAQL()).to.equal('COLLECT x = y INTO z');
     });
     describe('keep', function () {
-      var expr3 = expr2.keep();
+      var expr3 = expr2.keep('a', 'b');
       it('returns a new CollectExpression', function () {
         expect(expr3).to.be.a(CollectExpression);
-        expect(expr3.toAQL()).to.equal('COLLECT x = y INTO z KEEP');
+        expect(expr3.toAQL()).to.equal('COLLECT x = y INTO z KEEP a, b');
+      });
+      it('expects at least one variable name', function () {
+        expect(function () {expr2.keep();}).to.throwException(isAqlError);
       });
       describe('options', function () {
         it('returns a new CollectExpression', function () {
           var optExpr = expr3.options({c: 'd'});
           expect(optExpr).to.be.a(types.CollectExpression);
-          expect(optExpr.toAQL()).to.equal('COLLECT x = y INTO z KEEP OPTIONS {c: d}');
+          expect(optExpr.toAQL()).to.equal('COLLECT x = y INTO z KEEP a, b OPTIONS {c: d}');
         });
       });
     });

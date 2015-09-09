@@ -559,9 +559,9 @@ If the values are not already AQL values, they will be converted automatically.
 
 ### Function Call
 
-Creates a function call for the given name and arguments.
+Creates a functon call for the given name and arguments.
 
-`qb.fn(name)(args…)`
+`qb.fn(name)(...args)`
 
 If the values are not already AQL values, they will be converted automatically.
 
@@ -681,13 +681,13 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 * `_.into('z')` => `INTO z`
 
-##### … KEEP
+##### … KEEP ...vars
 
-`CollectExpression::keep() : CollectExpression`
+`CollectExpression::keep(...vars) : CollectExpression`
 
 **Examples**
 
-* `_.into('z').keep()` => `INTO z KEEP`
+* `_.into('z').keep('a', 'b')` => `INTO z KEEP a, b`
 
 #### … INTO varname = expression
 
@@ -705,9 +705,9 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 
 * `_.options('opts')` => `OPTIONS opts`
 
-### … SORT args…
+### … SORT ...args
 
-`PartialStatement::sort(args…) : PartialStatement`
+`PartialStatement::sort(...args) : PartialStatement`
 
 **Examples**
 
