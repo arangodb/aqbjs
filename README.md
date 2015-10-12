@@ -622,6 +622,7 @@ qb.for('doc').in('my_collection').return('doc._key').toAQL()
 **Examples**
 
 * `_.return('x')` => `RETURN x`
+* `_.return({x: 'x'})` => `RETURN {x: x}`
 
 ### RETURN DISTINCT expression
 
