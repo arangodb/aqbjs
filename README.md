@@ -16,29 +16,15 @@ The query builder allows constructing complex AQL queries with a pure JavaScript
 npm install aqb
 ```
 
-## With Bower
-
-```sh
-bower install aqb
-```
-
 ## ArangoDB
 
-As of ArangoDB 1.3, a version of `aqb` comes pre-installed with ArangoDB.
+A version of `aqb` comes pre-installed with ArangoDB.
 
 ```js
 var qb = require('aqb');
 ```
 
 If you want to use a more recent version of `aqb` in a Foxx app, you can add it to your NPM dependencies as usual.
-
-## Browser
-
-This CommonJS module is compatible with [browserify](http://browserify.org).
-
-If you don't want to use browserify, you can simply use the AMD-compatible [browserify bundle](https://raw.githubusercontent.com/arangodb/aqbjs/master/dist/aqb.min.js) (~30 kB minified, ~6 kB gzipped).
-
-If you want to use this module in non-ES5 browsers like Microsoft Internet Explorer 8 and earlier, you may need to include [es5-shim](https://www.npmjs.com/package/es5-shim) or a similar ES5 polyfill.
 
 ## From source
 
