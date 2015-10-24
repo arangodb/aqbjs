@@ -523,6 +523,23 @@ If the value is not already an AQL value, it will be converted automatically.
 
 `qb.not('x')` => `!(x)`
 
+### Negated Contains
+
+Creates a "not in" comparison from the given values.
+
+`qb.notIn(a, b)` => `(a not in b)`
+
+OR:
+
+`qbValue.notIn(b)` => `(a not in b)`
+
+If the values are not already AQL values, they will be converted automatically.
+
+
+**Examples**
+
+`qb.ref('x').notIn('y')` => `(x not in y)`
+
 ### Negative Value
 
 Creates a negative value expression from the given value.
