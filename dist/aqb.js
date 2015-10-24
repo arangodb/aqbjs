@@ -375,6 +375,9 @@ Expression.prototype.neg = function () {
 Expression.prototype['in'] = function (x) {
     return new BinaryOperation('in', this, x);
 };
+Expression.prototype.notIn = function (x) {
+    return new BinaryOperation('not in', this, x);
+};
 Expression.prototype.then = function (x) {
     var self = this;
     var elseFn = function (y) {
