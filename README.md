@@ -1,5 +1,7 @@
 # ArangoDB Query Builder
 
+**We don't recommend using this lib anymore. We've implemented an [aql template handler](https://github.com/arangodb/arangojs/blob/master/docs/Drivers/JS/Reference/README.md#aql) in arangojs which should be used instead.**
+
 The query builder allows constructing complex AQL queries with a pure JavaScript fluid API.
 
 [![license - APACHE-2.0](https://img.shields.io/npm/l/aqb.svg)](http://opensource.org/licenses/APACHE-2.0) [![Dependencies](https://img.shields.io/david/arangodb/aqbjs.svg)](https://david-dm.org/arangodb/aqbjs)
