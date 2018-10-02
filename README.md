@@ -564,7 +564,7 @@ If the values are not already AQL values, they will be converted automatically.
 
 ### Function Call
 
-Creates a functon call for the given name and arguments.
+Creates a function call for the given name and arguments.
 
 `qb.fn(name)(...args)`
 
